@@ -1,207 +1,321 @@
-# Pós-Aula 1 — Git e GitHub sem instalar nada
+# Pós-Aula 1 — Git, GitHub e Entrega via ZIP no Portal FIAP
 
-**Tempo estimado:** ~20 min
+**Tempo estimado:** ~30 min (após concluir o curso pré-requisito)
 **Quando fazer:** Entre a Aula 1 e a Aula 2 (até 1 dia antes da Aula 2)
 
 ---
 
-## Por que esta tarefa existe
+## Pré-requisito obrigatório — Curso Alura
 
-A partir da Aula 2, vamos entregar exercícios e código (Terraform, Python) via GitHub. Esta tarefa garante que você consiga:
+Antes desta apostila, **conclua o curso gratuito da Alura**:
 
-1. Criar uma conta GitHub
-2. Fazer fork do repositório da disciplina (sem comandos `git clone` na sua máquina)
-3. Editar arquivos diretamente no browser usando `github.dev`
-4. Fazer commits sem instalar Git localmente
+📚 **[Git e GitHub: compartilhando e colaborando em projetos](https://www.alura.com.br/curso-online-git-github-compartilhando-colaborando-projetos)**
 
-> **Política "no install":** Nada é instalado no seu computador. Tudo é via browser ou Cloud Shell.
-
----
-
-## Pré-requisitos
-
-- E-mail pessoal (Gmail, Outlook etc.) — **não use o e-mail FIAP**, ele pode ter restrições corporativas no GitHub
-- Navegador moderno
+- Curso gravado, gratuito para alunos do MBA
+- ~8 horas de conteúdo, mas você pode acelerar (1.5x ou 2x se já conhece o básico)
+- Cobre: conceitos de Git, GitHub, branches, pull requests, colaboração em equipe
+- **Você só precisa fazer esta apostila depois de concluir o curso** — caso contrário vai patinar nas seções de comandos
 
 ---
 
-## Parte 1 — Criar conta GitHub (5 min)
+## Por que esta apostila existe
 
-Se você já tem conta GitHub, **pule para a Parte 2**.
+O curso da Alura cobre os fundamentos. Esta apostila cobre **o que é específico da disciplina:**
 
-1. Acesse: **https://github.com/signup**
-2. Use seu **e-mail pessoal**
-3. Escolha uma senha forte e um username (sugestão: `seu-nome` ou `seu-nome-fiap` para identificação)
-4. Complete o captcha
-5. Confirme o e-mail (link enviado para sua caixa)
-6. Na pesquisa "What's your role?" → estudante (Student)
-7. Escolha o plano **Free**
-8. Pronto. Você tem conta GitHub.
+1. Como o **grupo organiza** o repositório do projeto Quantum Commerce
+2. Como **gerar o ZIP de entrega** que vai para o Portal FIAP em cada aula
+3. Por que **não fazemos fork público** do repositório oficial da disciplina
 
 ---
 
-## Parte 2 — (Opcional) Ativar GitHub Student Developer Pack
-
-GitHub oferece um pacote gratuito para estudantes com benefícios extras (Codespaces estendido, créditos em ferramentas).
-
-1. Acesse: **https://education.github.com/pack**
-2. Clique em **"Get your pack"**
-3. Faça login com sua conta GitHub
-4. Verifique status acadêmico:
-   - Documento sugerido: comprovante de matrícula FIAP em PDF
-   - Ou e-mail institucional `@fiap.com.br` (se você adicioná-lo como secundário à conta)
-5. Aguarde aprovação (geralmente 1-3 dias)
-
-> **Não é bloqueante** para a disciplina — mas dá Codespaces estendido e outros benefícios que ajudam na Aula 3 em diante.
-
----
-
-## Parte 3 — Fork do repositório da disciplina (3 min)
-
-O repositório oficial da disciplina é:
-
-**https://github.com/elthonf/aie-cloud**
-
-1. Acesse o link do repositório
-2. No canto superior direito, clique em **"Fork"** (ícone de bifurcação)
-3. Configure:
-   - Owner: sua conta GitHub
-   - Repository name: `aie-cloud` (manter padrão)
-   - Description: opcional
-   - Marque "Copy the **main** branch only"
-4. Clique em **"Create fork"**
-
-Em ~10 segundos, você tem uma cópia do repositório na sua conta. Você vai trabalhar nessa cópia (fork) e versionar suas entregas lá.
-
----
-
-## Parte 4 — Editar arquivos via `github.dev` (5 min)
-
-`github.dev` é uma versão do VS Code que roda no browser — **sem instalar nada**.
-
-### Acessar
-
-1. Vá para seu fork no GitHub: `https://github.com/seu-usuario/aie-cloud`
-2. **Pressione a tecla `.`** (ponto) no teclado enquanto o repositório está aberto
-
-Mágica: a URL muda para `github.dev` e abre um editor estilo VS Code com seu repositório carregado. Sem instalação. Sem clone local.
-
-### Alternativa
-
-Se preferir clicar: na URL do repositório, troque `github.com` por `github.dev`:
+## A estrutura no fluxo da disciplina
 
 ```
-https://github.com/seu-usuario/aie-cloud
-                ↓
-https://github.dev/seu-usuario/aie-cloud
+┌─────────────────────────────────────────────────────────────┐
+│  github.com/elthonf/aie-cloud   (PÚBLICO — só leitura)      │
+│  Material oficial: planos, labs, exercícios                  │
+│  Você faz "git clone" para baixar o material                 │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            │ git clone (leitura)
+                            ▼
+        ┌──────────────────────────────────────┐
+        │  Seu grupo (PRIVADO)                 │
+        │  Cada grupo cria UM repo PRIVADO     │
+        │  com os 4-5 membros como collaborators│
+        │  Aqui vocês trabalham juntos          │
+        └──────────────────────────────────────┘
+                            │
+                            │ git archive (gera ZIP)
+                            ▼
+        ┌──────────────────────────────────────┐
+        │  Portal FIAP                         │
+        │  Upload do ZIP em cada entrega       │
+        │  (5 entregas durante a disciplina)    │
+        └──────────────────────────────────────┘
 ```
 
-### Primeira edição
-
-1. No editor `github.dev`, crie o arquivo `respostas-aula01.md` na raiz do repo
-2. Adicione o seguinte conteúdo (substitua com suas informações):
-
-```markdown
-# Respostas — Aula 1
-
-**Aluno(a):** Seu Nome
-
-## Exercício 1.1 — Modelos de Serviço
-(suas respostas aqui)
-```
-
-3. Salve o arquivo: `Ctrl+S` (Windows/Linux) ou `Cmd+S` (Mac)
-
-### Commit das mudanças
-
-1. No menu lateral esquerdo, clique no ícone de **Source Control** (símbolo de bifurcação, terceiro de cima)
-2. Você vê o arquivo modificado na seção "Changes"
-3. No campo de mensagem, escreva: `feat: respostas Aula 1`
-4. Clique em **"Commit & Push"** (ou Commit + Sync)
-5. Pronto — sua mudança está no GitHub
-
-### Confirmar no browser
-
-1. Volte para `https://github.com/seu-usuario/aie-cloud`
-2. Você verá o arquivo `respostas-aula01.md` listado
-3. Clique nele para ver o conteúdo
+> **Por que não fazer fork público?** Como há vários grupos por turma e várias turmas, fork público permitiria que grupos copiassem as entregas uns dos outros. O Portal FIAP isola as entregas.
 
 ---
 
-## Parte 5 — (Opcional) Git via Cloud Shell
+## Parte 1 — Clonar o material oficial (5 min)
 
-Se você prefere usar a linha de comando, o Cloud Shell também tem `git` pronto.
-
-### Configurar identidade (primeira vez)
+O repositório `aie-cloud` é **público**. Você não precisa fazer fork — só clonar para ter o material localmente no Cloud Shell.
 
 ```bash
-git config --global user.name "Seu Nome"
-git config --global user.email "seu.email.pessoal@gmail.com"
-```
-
-### Clonar o fork no Cloud Shell
-
-```bash
+# No Cloud Shell
 cd ~
-git clone https://github.com/seu-usuario/aie-cloud.git
+git clone https://github.com/elthonf/aie-cloud.git
 cd aie-cloud
 ls
 ```
 
-### Fluxo básico
+Para atualizar quando o professor publicar novos materiais (Aulas 2-6):
 
 ```bash
-# Editar arquivo
-code respostas-aula01.md
+cd ~/aie-cloud
+git pull origin main
+```
+
+**Não tente commitar no aie-cloud.** Você não tem permissão e nem é o objetivo. Use só para ler.
+
+---
+
+## Parte 2 — Criar o repositório PRIVADO do grupo (10 min)
+
+### Passo 1 — Definir quem cria o repo
+
+Um membro do grupo (geralmente quem tem mais experiência com Git) cria. Pode ser feito direto pelo browser, **sem instalar nada**.
+
+### Passo 2 — Criar no GitHub
+
+1. Acesse https://github.com/new
+2. Preencha:
+   - **Owner:** sua conta GitHub
+   - **Repository name:** `qc-grupo-NN-<turma>` (substitua NN pelo número do grupo e `<turma>` pelo código da sua turma)
+   - **Visibility:** ⚠️ **PRIVATE** (importantíssimo!)
+   - Marque "Add a README file"
+   - Marque "Add .gitignore" → Python
+3. Clique em **"Create repository"**
+
+### Passo 3 — Adicionar os outros membros
+
+No repo recém-criado:
+
+1. **Settings** (engrenagem no topo do repo)
+2. Menu lateral → **Collaborators**
+3. **Add people** → digite o username GitHub de cada colega → Role: **Write** (Maintain se quiser que ajudem na admin)
+4. Cada membro recebe e-mail de convite — precisa aceitar
+
+### Passo 4 — Confirmar acesso
+
+Cada membro deve conseguir:
+
+1. Acessar `https://github.com/<criador>/qc-grupo-NN-<turma>`
+2. Abrir o editor pelo `github.dev` (apertar `.` no teclado)
+3. Fazer um commit de teste editando o README
+
+---
+
+## Parte 3 — Estrutura sugerida do repo do grupo (5 min)
+
+Recomendamos esta estrutura no repo privado:
+
+```
+qc-grupo-NN/
+├── README.md                          # Apresentação do grupo + arquitetura QC
+├── .gitignore                         # Não commitar segredos
+├── aula01/
+│   ├── entrega-grupo-aula01.md        # Documento principal da entrega
+│   ├── terraform/                     # main.tf, variables.tf, outputs.tf
+│   └── diagramas/                     # PNG/SVG da arquitetura
+├── aula02/
+│   ├── entrega-grupo-aula02.md
+│   ├── terraform/
+│   ├── scripts/
+│   └── diagramas/
+├── aula03/
+│   └── ...
+└── docs/
+    └── decisoes-tecnicas.md           # Bitácora do grupo (opcional, recomendado)
+```
+
+> **Princípio:** **uma pasta por aula**, cada uma fechada em si. Permite zipar a pasta direto na hora da entrega.
+
+---
+
+## Parte 4 — Como gerar o ZIP de entrega (5 min)
+
+### Opção A — Via `git archive` no Cloud Shell (recomendado)
+
+```bash
+# Ir para o repo clonado do grupo
+cd ~/qc-grupo-NN
+
+# Atualizar com o que os colegas committaram
+git pull origin main
+
+# Gerar ZIP só com a pasta da aula que você está entregando
+git archive --format=zip --prefix=qc-grupo-NN-aula01/ -o ~/entrega-grupo-NN-aula01.zip HEAD:aula01
+
+# Confirmar
+unzip -l ~/entrega-grupo-NN-aula01.zip
+```
+
+Vantagens:
+
+- Inclui só o que está versionado (não vaza segredos do `.gitignore`)
+- Inclui só a pasta da aula específica
+- Pasta dentro do ZIP tem prefixo claro
+
+### Opção B — `zip` direto no Cloud Shell
+
+```bash
+cd ~/qc-grupo-NN
+zip -r ~/entrega-grupo-NN-aula01.zip aula01/ -x "*.tfstate*" "*.pyc" "__pycache__/*"
+```
+
+> **Cuidado:** `zip -r aula01/` SEM o `-x` pode incluir `terraform.tfstate` (que tem segredos!) e `__pycache__/`. Por isso preferimos `git archive` ou `zip -x`.
+
+---
+
+## Parte 5 — O que vai dentro do ZIP
+
+Cada `entrega-grupo-NN-aulaXX.zip` deve conter:
+
+```
+qc-grupo-NN-aulaXX/
+├── entrega-grupo-aulaXX.md       # ⭐ documento principal (cabeçalho + N1 + N2 + N3 + reflexão)
+├── README.md                     # Como rodar o que está dentro
+├── terraform/                    # Código IaC (se houver na aula)
+├── scripts/                      # Python (se houver)
+└── diagramas/                    # Imagens (PNG/SVG)
+```
+
+**Não inclua:**
+
+- `terraform.tfstate*` (tem segredos)
+- `__pycache__/`, `.venv/`, `node_modules/`
+- Arquivos `.env` com credenciais
+- Imagens binárias gigantes (>5 MB)
+
+Tamanho ideal do ZIP: < 5 MB. Se passar, revise o que está incluindo.
+
+Use o **[template obrigatório](../../entregas/template-entrega-grupo.md)** para o `entrega-grupo-aulaXX.md`. A **[rubrica](../../entregas/rubrica.md)** descreve como cada entrega é avaliada.
+
+---
+
+## Parte 6 — Upload no Portal FIAP
+
+(O processo exato do Portal FIAP será comunicado pelo professor antes da primeira entrega.)
+
+Esperado:
+
+1. Acessar o Portal FIAP → disciplina Cloud & Cognitive Environments
+2. Localizar a tarefa "Entrega Aula 01"
+3. Upload do `entrega-grupo-NN-aula01.zip`
+4. Submeter
+5. **Apenas um membro do grupo** faz o upload (combine antes para evitar duplicação)
+
+> **Confira o tamanho do ZIP antes** — Portal FIAP costuma ter limite de ~20 MB por arquivo.
+
+---
+
+## Boas práticas para o trabalho em grupo
+
+### Trabalhar em paralelo sem pisar no pé um do outro
+
+Use **branches** (curso da Alura cobre):
+
+```bash
+# Você está fazendo o N1 da Aula 1
+git checkout -b feat/aula01-n1
+# faz suas mudanças, commita, push
+git push origin feat/aula01-n1
+# Abre Pull Request no GitHub para revisar antes do merge na main
+```
+
+### Identificar autoria nos commits
+
+Cada membro deve ter sua identidade Git configurada (curso Alura):
+
+```bash
+git config user.name "Seu Nome Completo"
+git config user.email "seu.email@gmail.com"
+```
+
+> A rubrica usa principalmente o cabeçalho `Distribuição do trabalho` do `entrega-grupo-aulaXX.md`, mas commits autênticos ajudam o professor a confirmar a divisão real.
+
+### Evitar conflito de merge
+
+- Combine quem mexe em qual arquivo antes da semana
+- Faça `git pull` antes de cada sessão de trabalho
+- Evite editar o mesmo arquivo simultaneamente — use branches
+
+### O que NÃO commitar
+
+Seu `.gitignore` deve excluir, no mínimo:
+
+```gitignore
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Segredos
+.env
+*.pem
+credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+```
+
+---
+
+## Cheat-sheet — Comandos Git mais usados na disciplina
+
+```bash
+# Clonar repo do grupo
+git clone https://github.com/<criador>/qc-grupo-NN.git
 
 # Ver o que mudou
 git status
 git diff
 
-# Commit
-git add respostas-aula01.md
-git commit -m "feat: respostas Aula 1"
+# Salvar mudanças
+git add aula01/entrega-grupo-aula01.md
+git commit -m "feat(aula01): respostas N1 do João"
 
-# Enviar para o GitHub — vai pedir usuário e Personal Access Token
+# Sincronizar com o grupo
+git pull origin main
 git push origin main
+
+# Trabalhar em branch separada
+git checkout -b feat/aula01-arquitetura
+# (faz alterações)
+git push origin feat/aula01-arquitetura
+# Abre Pull Request no GitHub
+
+# Gerar ZIP de entrega
+git archive --format=zip --prefix=qc-grupo-NN-aula01/ -o ~/entrega.zip HEAD:aula01
+
+# Ver histórico
+git log --oneline --all --graph
 ```
-
-### Personal Access Token (para `git push` via Cloud Shell)
-
-Como o GitHub não aceita mais senha em push HTTPS:
-
-1. No GitHub, vá em: Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → **Generate new token**
-2. Nome: `cloud-shell-fiap`
-3. Expiração: 90 dias
-4. Repository access: Only select repositories → seu fork
-5. Permissions: **Repository permissions** → **Contents: Read and write**
-6. Generate token → **copie e guarde** (não verá de novo)
-7. No `git push`, use seu username GitHub e cole o token como senha
-
-> **Mais simples:** Use `github.dev` que não precisa de token.
-
----
-
-## Como você vai entregar os exercícios
-
-A partir da Aula 2, o fluxo será:
-
-1. Resolver os exercícios em `respostas-aulaXX.md` no seu fork
-2. Para exercícios de código (Terraform/Python), criar pastas tipo `aula02/terraform/` no seu fork
-3. Commit + push até 1 dia antes da próxima aula
-4. Avisar no chat com o link do seu fork
-
----
-
-## Conexão com a Aula 2
-
-Na Aula 2, vamos:
-
-- Criar storage via Terraform (`storage.tf`) — você vai versionar isso no fork
-- Popular dados via Python — também versionado
-- Continuar evoluindo o esboço da arquitetura QC do seu grupo
-
-Ter o GitHub funcionando hoje evita que a Aula 2 vire tutorial de Git.
 
 ---
 
@@ -209,10 +323,11 @@ Ter o GitHub funcionando hoje evita que a Aula 2 vire tutorial de Git.
 
 | Problema | Solução |
 |----------|---------|
-| "Fork" botão não aparece | Você não está logado no GitHub. Faça login primeiro. |
-| `github.dev` não abre quando pressiono `.` | Garanta que está na página do repositório (não na visualização de um arquivo). Tente trocar a URL manualmente. |
-| `git push` no Cloud Shell pede senha e falha | Use Personal Access Token, não senha. Veja Parte 5. |
-| Não recebi link do repo da disciplina | O repo é público: https://github.com/elthonf/aie-cloud |
+| "Permission denied" ao clonar o repo privado | Verifique se o criador adicionou você como collaborator e se você aceitou o convite |
+| Conflitos de merge complicados | Curso Alura aborda; em último caso, peça ajuda do professor no chat |
+| ZIP ficou > 20 MB | Você incluiu `terraform.tfstate` ou imagens binárias. Limpe com `git rm --cached <arquivo>` |
+| GitHub pede 2FA e você não configurou | Use Personal Access Token ou ative 2FA (recomendado em qualquer caso) |
+| Esqueci de criar branch e fiz tudo na `main` | Funciona mesmo assim, mas dificulta paralelizar. Da próxima vez, branch |
 
 ---
 
@@ -220,9 +335,10 @@ Ter o GitHub funcionando hoje evita que a Aula 2 vire tutorial de Git.
 
 Ao final, você deve ter:
 
-- ✅ Conta GitHub criada
-- ✅ Fork do repo da disciplina criado
-- ✅ `respostas-aula01.md` editado e commitado via `github.dev`
-- ✅ Capacidade de editar arquivos sem instalar nada
+- ✅ Concluído o curso Alura de Git (pré-requisito)
+- ✅ Clone local do `aie-cloud` no Cloud Shell para consultar o material
+- ✅ Repositório **privado** do seu grupo criado no GitHub com todos os membros como collaborators
+- ✅ Saber gerar o ZIP da entrega via `git archive`
+- ✅ Estrutura de pastas iniciada (`aula01/`)
 
-**Próxima parada:** Aula 2 — Storage & Bancos de Dados na Quantum Commerce.
+**Próxima parada:** Resolver os exercícios da Aula 1 ([exercicios.md](exercicios.md)), gerar o ZIP seguindo o [template](../../entregas/template-entrega-grupo.md) e fazer upload no Portal FIAP até 1 dia antes da Aula 2.

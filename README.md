@@ -35,15 +35,20 @@ Leia o [SETUP.md](SETUP.md) — ele cobre os 3 passos obrigatórios antes da Aul
 
 ```
 aulas/                    Material de cada aula (lab, exercícios, IaC)
-quantum-commerce/         Case integrador — projeto avaliativo da disciplina
+quantum-commerce/         Case integrador — briefing do projeto avaliativo
+entregas/                 Rubrica, template e instruções de cada entrega
 recursos/                 Cheatsheets, troubleshooting, glossário
 ```
 
 ---
 
-## Projeto avaliativo: Quantum Commerce
+## Avaliação — entregas em grupo
 
-A nota da disciplina vem do **Projeto Integrado em grupo**, que constrói uma arquitetura cloud para o case **Quantum Commerce** ao longo das 6 aulas. Veja [quantum-commerce/](quantum-commerce/) para o briefing e a rubrica.
+A disciplina é avaliada por **5 entregas intermediárias em grupo** (Aulas 1-5, 10% cada) + **apresentação final** (Aula 6, 50%). Cada entrega é um **ZIP no Portal FIAP** gerado a partir do repo PRIVADO do grupo no GitHub — não há fork público.
+
+Veja [entregas/](entregas/) para a rubrica, o template obrigatório e as instruções de cada entrega. O fluxo completo (curso Alura → repo privado → ZIP via `git archive` → upload no Portal) está em [aulas/01-fundamentos-iac/pos-aula-git.md](aulas/01-fundamentos-iac/pos-aula-git.md).
+
+O case integrador é a **Quantum Commerce** — veja [quantum-commerce/](quantum-commerce/) para o briefing.
 
 ---
 

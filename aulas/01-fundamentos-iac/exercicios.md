@@ -1,24 +1,40 @@
 # Exercícios — Aula 1
 
 **Tema:** Fundamentos de Cloud & Infraestrutura como Código
-**Formato:** Individual ou em dupla
-**Entrega:** via fork no GitHub (ver [tutorial Git pós-aula](pos-aula-git.md)) até 1 dia antes da Aula 2
+**Formato:** **Entrega obrigatória por grupo** — ZIP no Portal FIAP
+**Vale:** 10% da nota final ([rubrica completa](../../entregas/rubrica.md))
+**Prazo:** 1 dia antes da Aula 2
+**Como entregar:** ver [entregas/entrega-01/INSTRUCOES.md](../../entregas/entrega-01/INSTRUCOES.md) e [pos-aula-git.md](pos-aula-git.md)
 
 ---
 
 ## Instruções gerais
 
-Os exercícios estão divididos em três níveis. Você **não precisa fazer os três** — escolha o nível que faz mais sentido para o seu momento:
+Esta é a **primeira entrega de grupo** da disciplina. Ao todo são 5 entregas intermediárias (10% cada) + apresentação final na Aula 6 (50%).
 
-- 🟢 **Nível 1 — Básico:** Consolida os conceitos da aula. Recomendado para quem está começando na nuvem.
-- 🟡 **Nível 2 — Intermediário:** Aprofunda com pesquisa e análise. Recomendado para quem já tem contato com cloud.
-- 🔴 **Nível 3 — Avançado:** Envolve IaC e automação. Recomendado para quem já usa cloud no dia a dia.
+### Como o grupo se organiza
 
-Quem quiser o maior aproveitamento: tente completar o Nível 1 + pelo menos metade do Nível 2.
+Os 3 níveis de exercícios são **divisão de trabalho dentro do grupo**, não escolha individual livre:
+
+- 🟢 **Nível 1 — Básico:** consolidação dos conceitos da aula (modelos de serviço, 6 Rs, SLA, RBAC)
+- 🟡 **Nível 2 — Intermediário:** bloco do projeto Quantum Commerce (arquitetura, comparativo de custos, migração)
+- 🔴 **Nível 3 — Avançado:** **bônus opcional** — Network Security via Terraform, Bicep equivalente, multi-cloud
+
+**Mínimo obrigatório:** N1 + N2 cobertos. **N3 é bônus** (até +2 pts extras na nota da aula).
+
+### Distribuição sugerida (4-5 membros)
+
+- Membros com menos experiência em cloud: assumem N1 (consolidação)
+- Membros com experiência intermediária: assumem N2 (projeto QC)
+- Membros experientes: assumem N3 (bônus) — se houver perfil avançado no grupo
+
+> Quem fez N1 desta aula deve preferencialmente fazer N2 ou N3 na próxima — **rodízio entre aulas vale ponto** no Critério 4 da rubrica.
+
+### Template obrigatório
+
+Use o [template em `entregas/template-entrega-grupo.md`](../../entregas/template-entrega-grupo.md) — inclui cabeçalho de grupo, distribuição de trabalho, respostas dos níveis e reflexão coletiva.
 
 > **Política "no install":** Todos os exercícios podem ser feitos no Azure Cloud Shell + editor `code` (ou github.dev). Não instale nada localmente.
-
-> **Conexão com o Projeto Final:** Os exercícios do Nível 2 e 3 já são blocos do Projeto Integrado Quantum Commerce. Guarde suas respostas — elas vão compor a entrega final.
 
 ---
 
@@ -274,14 +290,21 @@ d) **Estime custo de egress:** 10 TB/mês entre Azure (Brazil South) e AWS (us-e
 
 ## Critérios de entrega
 
-| Nível | O que entregar | Como entregar |
-|-------|---------------|---------------|
-| Nível 1 | Respostas dos exercícios 1.1, 1.2, 1.3, 1.4 | Arquivo `respostas-aula01.md` no seu fork do repo via github.dev |
-| Nível 2 | 2.1 (com diagrama), 2.2 (tabela), 2.3 | Adicionar ao mesmo arquivo + imagem do diagrama no repo |
-| Nível 3 | Código Terraform/Bicep + README | Commits no repo + README explicando como rodar |
+A entrega é **um ZIP por grupo** (`entrega-grupo-NN-aula01.zip`) no Portal FIAP. Estrutura completa, prazo e dicas de geração do ZIP em [entregas/entrega-01/INSTRUCOES.md](../../entregas/entrega-01/INSTRUCOES.md).
+
+| Item | Obrigatório? | Pontos máximos |
+|------|--------------|----------------|
+| Cabeçalho do grupo + distribuição do trabalho | ✅ Sim | 1 pt (Critério 4) |
+| 🟢 N1 — Exercícios 1.1, 1.2, 1.3, 1.4 respondidos | ✅ Sim | 3 pts (Critério 1) |
+| 🟡 N2 — Exercícios 2.1 (com diagrama), 2.2, 2.3 | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
+| 🔴 N3 — Exercícios 3.1, 3.2, 3.3 (código Terraform/Bicep + README) | 🎁 Bônus | até +2 pts extras |
+| Reflexão coletiva ao final | ✅ Sim | 1 pt (Critério 5) |
+| **Total da entrega** | | **10 pts** (10% da nota final) |
 
 **Prazo:** 1 dia antes da Aula 2.
-**Como entregar:** Fork do repositório da disciplina + commits via github.dev. Tutorial completo em [pos-aula-git.md](pos-aula-git.md).
+**Onde:** upload do ZIP no Portal FIAP. Apenas 1 membro do grupo faz o upload.
+
+> **Atraso:** -1 pt por dia. **Sem entrega:** zero. **Free riders:** quem não contribuir em 2+ aulas consecutivas perde participação no projeto (ver [rubrica](../../entregas/rubrica.md)).
 
 ---
 

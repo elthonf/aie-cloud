@@ -46,7 +46,11 @@ A camada de dados desta aula é consumida pelas funções da **Aula 3**, pelos s
 | [lab/terraform/](lab/terraform/) | Código IaC pronto (8 arquivos `.tf`) |
 | [lab/scripts/](lab/scripts/) | Scripts Python (popular SQL, popular Cosmos, indexar Search) |
 | [lab/data/produtos.csv](lab/data/produtos.csv) | 20 produtos de exemplo da QC |
-| [exercicios.md](exercicios.md) | Após a aula — exercícios em 3 níveis (🟢/🟡/🔴) |
+| [exercicios.md](exercicios.md) | Após a aula — exercícios em 3 níveis (🟢/🟡/🔴) que compõem a entrega de grupo |
+
+## Entrega de grupo
+
+Esta aula gera a **2ª entrega de grupo** (10% da nota): instruções em [entregas/entrega-02/](../../entregas/entrega-02/). Rubrica única em [entregas/rubrica.md](../../entregas/rubrica.md).
 
 ---
 

@@ -28,8 +28,12 @@ Veja [quantum-commerce/](../../quantum-commerce/) para o briefing do case.
 | [pre-aula.md](pre-aula.md) | **Antes da aula** — checklist de 15-30 min |
 | [lab/guia-lab.md](lab/guia-lab.md) | Durante a aula — roteiro das 6 atividades de laboratório |
 | [lab/terraform/](lab/terraform/) | Código Terraform pronto da Atividade 5 |
-| [exercicios.md](exercicios.md) | Após a aula — exercícios em 3 níveis (🟢/🟡/🔴) |
-| [pos-aula-git.md](pos-aula-git.md) | Após a aula — tutorial obrigatório de Git/GitHub sem instalar nada |
+| [exercicios.md](exercicios.md) | Após a aula — exercícios em 3 níveis (🟢/🟡/🔴) que compõem a entrega de grupo |
+| [pos-aula-git.md](pos-aula-git.md) | Após a aula — configuração do trabalho em grupo (repo privado + ZIP para o Portal FIAP) |
+
+## Entrega de grupo
+
+Esta aula gera a **1ª entrega de grupo** (10% da nota): instruções em [entregas/entrega-01/](../../entregas/entrega-01/). Rubrica única em [entregas/rubrica.md](../../entregas/rubrica.md).
 
 ---
 

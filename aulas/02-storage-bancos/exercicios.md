@@ -1,22 +1,36 @@
 # Exercícios — Aula 2
 
 **Tema:** Storage & Bancos de Dados na Nuvem
-**Formato:** Individual ou em dupla
-**Entrega:** via fork GitHub (`respostas-aula02.md`) até 1 dia antes da Aula 3
+**Formato:** **Entrega obrigatória por grupo** — ZIP no Portal FIAP
+**Vale:** 10% da nota final ([rubrica completa](../../entregas/rubrica.md))
+**Prazo:** 1 dia antes da Aula 3
+**Como entregar:** ver [entregas/entrega-02/INSTRUCOES.md](../../entregas/entrega-02/INSTRUCOES.md)
 
 ---
 
 ## Instruções gerais
 
-3 níveis. Escolha o que faz sentido para você:
+Esta é a **2ª entrega de grupo** da disciplina. Os 3 níveis são **divisão de trabalho dentro do grupo**, não escolha livre:
 
-- 🟢 **Nível 1 — Básico:** Consolida storage, relacional vs NoSQL, Key Vault
-- 🟡 **Nível 2 — Intermediário:** Decisões arquiteturais para a Quantum Commerce
-- 🔴 **Nível 3 — Avançado:** Vector search verdadeira + Synapse serverless + benchmarks
+- 🟢 **Nível 1 — Básico:** consolida storage, tiers, relacional vs NoSQL, RBAC do Key Vault
+- 🟡 **Nível 2 — Intermediário:** modelagem de dados QC + plano de migração + particionamento Cosmos
+- 🔴 **Nível 3 — Avançado:** **bônus opcional** — vector search verdadeira (embeddings), Synapse serverless, benchmark Cosmos vs SQL vs AI Search
 
-> **Política "no install":** Tudo pode rodar no Azure Cloud Shell. `pip install --user` é OK no Cloud Shell (storage cloud).
+**Mínimo obrigatório:** N1 + N2 cobertos. **N3 é bônus** (até +2 pts extras).
 
-> **Conexão com o Projeto Final:** Os exercícios Nível 2 e 3 entram diretamente na entrega da Aula 6.
+### Distribuição entre membros do grupo (sugerida)
+
+- Iniciantes em cloud: N1 (consolidação)
+- Intermediários: N2 (bloco QC — matriz de decisão e plano de migração)
+- Experientes: N3 (bônus) — vector search é o tópico mais técnico
+
+> **Rodízio:** quem fez N1 na Aula 1 deve preferencialmente fazer N2 ou N3 agora. Vale ponto da rubrica (Critério 4 — Colaboração).
+
+### Template obrigatório
+
+Use o [template em `entregas/template-entrega-grupo.md`](../../entregas/template-entrega-grupo.md) para o `entrega-grupo-aula02.md` dentro do ZIP.
+
+> **Política "no install":** Tudo roda no Azure Cloud Shell. `pip install --user` é OK no Cloud Shell.
 
 ---
 
@@ -432,10 +446,16 @@ Entrega: tabela comparativa + recomendação justificada no `respostas-aula02.md
 
 ## Critérios de entrega
 
-| Nível | O que entregar | Como entregar |
-|-------|---------------|---------------|
-| Nível 1 | 1.1, 1.2, 1.3, 1.4 + diagrama atualizado | `respostas-aula02.md` no fork |
-| Nível 2 | 2.1 (matriz completa + diagrama), 2.2 (plano migração), 2.3 (particionamento) | Mesmo arquivo + commits do `main.tf` evoluído |
-| Nível 3 | 3.1 (vector search real + reflexão), 3.2 (Synapse), 3.3 (benchmark) | Scripts em `aula02/scripts/` do seu fork + reflexão escrita |
+A entrega é **um ZIP por grupo** (`entrega-grupo-NN-aula02.zip`) no Portal FIAP. Estrutura completa, prazo e dicas de geração do ZIP em [entregas/entrega-02/INSTRUCOES.md](../../entregas/entrega-02/INSTRUCOES.md).
+
+| Item | Obrigatório? | Pontos máximos |
+|------|--------------|----------------|
+| Cabeçalho do grupo + distribuição do trabalho | ✅ Sim | 1 pt (Critério 4) |
+| 🟢 N1 — Exercícios 1.1, 1.2, 1.3, 1.4 respondidos | ✅ Sim | 3 pts (Critério 1) |
+| 🟡 N2 — 2.1 (matriz + diagrama), 2.2 (migração), 2.3 (particionamento Cosmos) | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
+| 🔴 N3 — 3.1 (vector search verdadeira), 3.2 (Synapse), 3.3 (benchmark) | 🎁 Bônus | até +2 pts extras |
+| Reflexão coletiva ao final | ✅ Sim | 1 pt (Critério 5) |
+| **Total da entrega** | | **10 pts** (10% da nota final) |
 
 **Prazo:** 1 dia antes da Aula 3.
+**Onde:** upload do ZIP no Portal FIAP. Apenas 1 membro do grupo faz o upload.
