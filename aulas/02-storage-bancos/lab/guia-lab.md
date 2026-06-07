@@ -365,6 +365,7 @@ Esses recursos serão consumidos por:
 | AI Search: limite de SKU Free atingido | 1 search service Free por subscription | Destruir o existente em outra subscription, ou usar SKU `basic` (~$60/mês — evite) |
 | Python: "Login failed for user 'sqladminqc'" | Senha do shell tinha `$` ou aspas — interpretado errado | Use `openssl rand -base64 24` (não contém caracteres problemáticos) ou guarde em variável escapada |
 | Python pyodbc: "Can't open lib 'ODBC Driver 18 for SQL Server'" | Cloud Shell pode ter v17 em vez de v18 | Mudar `driver = "{ODBC Driver 17 for SQL Server}"` no script |
+| pyodbc: "Invalid value specified for connection string attribute 'Encrypt'" | Connection string com `Encrypt=true`/`false` (sintaxe .NET); o ODBC exige `yes`/`no` | Já corrigido no `keyvault.tf` (`Encrypt=yes;TrustServerCertificate=no`). Se o segredo foi criado antes do fix, rode `terraform apply` de novo para atualizá-lo |
 | Key Vault: "Forbidden — the user does not have ... action" | RBAC ainda não propagou | `sleep 60` e tentar de novo |
 | Cosmos: "Request is unauthorized" | Falta role data plane | Rodar o `az cosmosdb sql role assignment create...` do Passo 2 da Parte A |
 | `terraform destroy` falha em Key Vault | Purge protection ou soft-delete | Confirmar `purge_protection_enabled = false` no `keyvault.tf` (já está) |

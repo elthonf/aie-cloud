@@ -28,7 +28,10 @@ resource "time_sleep" "wait_rbac" {
 resource "azurerm_key_vault_secret" "sql_connection" {
   name         = "sql-connection-string"
   key_vault_id = azurerm_key_vault.qc.id
-  value        = "Server=tcp:${azurerm_mssql_server.qc.fully_qualified_domain_name},1433;Database=${azurerm_mssql_database.qc.name};User ID=sqladminqc;Password=${var.sql_admin_password};Encrypt=true;TrustServerCertificate=false;Connection Timeout=30;"
+  # Encrypt=yes / TrustServerCertificate=no: sintaxe aceita pelo ODBC Driver 18
+  # (pyodbc no Cloud Shell). "true"/"false" só valem para .NET/SqlClient e o
+  # ODBC rejeita com "Invalid value specified for connection string attribute 'Encrypt'".
+  value        = "Server=tcp:${azurerm_mssql_server.qc.fully_qualified_domain_name},1433;Database=${azurerm_mssql_database.qc.name};User ID=sqladminqc;Password=${var.sql_admin_password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
   content_type = "connection-string"
   depends_on   = [time_sleep.wait_rbac]
 }
