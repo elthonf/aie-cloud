@@ -198,7 +198,7 @@ Anote no `respostas-aula02.md` do seu fork:
 
 ---
 
-## Atividade 3 — Cosmos DB Free Tier + Azure AI Search
+## Atividade 3 — Cosmos DB Serverless + Azure AI Search
 
 **Objetivo:** Inserir reviews dos clientes da QC no Cosmos DB (NoSQL) e indexar o catálogo no Azure AI Search com semantic ranking — base para o RAG dos agentes.
 
@@ -208,10 +208,10 @@ Anote no `respostas-aula02.md` do seu fork:
 
 Abra [cosmos.tf](terraform/cosmos.tf):
 
-- **`azurerm_cosmosdb_account.qc`** — conta Cosmos com **`free_tier_enabled = true`** (1000 RU/s + 25GB grátis) e modo **Serverless** (paga por request).
+- **`azurerm_cosmosdb_account.qc`** — conta Cosmos em modo **Serverless** (paga por operação). Custo das 4h de aula ≈ centavos.
 - **Container `reviews`** particionado por `/produto_id`.
 
-> **Atenção:** O Free Tier permite **1 conta Cosmos por subscription**. Se o `apply` inicial falhou aqui, marque `free_tier_enabled = false` em `cosmos.tf` (terá custo simbólico) ou destrua outra conta Cosmos existente.
+> **Por que não Free Tier?** O Free Tier do Cosmos só beneficia *provisioned throughput* (não serverless) e o Azure permite **apenas 1 conta free-tier por assinatura** — o que trava o `apply` se já houver outra. Por isso o lab usa serverless sem free-tier (`var.cosmos_free_tier = false`). Para ligar mesmo assim: `terraform apply -var="cosmos_free_tier=true"`.
 
 #### Passo 2 — Conceder permissão de Data Plane no Cosmos
 
@@ -314,7 +314,7 @@ Tempo: ~5 minutos.
 ### Passo 2 — Verificar custo zero
 
 1. Portal → **Cost Management** → **Análise de custo** → filtrar por hoje
-2. Total deve estar próximo de $0 (Free Tiers + duração curta do lab)
+2. Total deve estar próximo de $0 (serverless/auto-pause + Search free + duração curta do lab)
 
 ### Passo 3 — Commitar progresso no seu fork
 
@@ -361,7 +361,7 @@ Esses recursos serão consumidos por:
 | Problema | Causa | Solução |
 |----------|-------|---------|
 | `RequestDisallowedByAzure` / "best available regions" no apply | A política da conta Azure for Students bloqueia a região (ex.: `brazilsouth`) para esses recursos | Rode com uma região permitida: `terraform apply -var="location=eastus2"`. Para descobrir as permitidas, abra no portal a criação de um Storage Account e veja as regiões do dropdown |
-| Terraform: "free_tier_enabled cannot be set to true" no Cosmos | Você já tem outra conta Cosmos com Free Tier nesta subscription | Trocar para `free_tier_enabled = false` (custo mínimo) ou destruir a outra conta |
+| Cosmos: "Free tier has already been applied to another account" | Já existe (ou existiu) outra conta Cosmos free-tier na assinatura | Já tratado: o lab usa serverless sem free-tier por padrão. Se você ligou com `-var="cosmos_free_tier=true"`, volte para `false` |
 | AI Search: limite de SKU Free atingido | 1 search service Free por subscription | Destruir o existente em outra subscription, ou usar SKU `basic` (~$60/mês — evite) |
 | Python: "Login failed for user 'sqladminqc'" | Senha do shell tinha `$` ou aspas — interpretado errado | Use `openssl rand -base64 24` (não contém caracteres problemáticos) ou guarde em variável escapada |
 | Python pyodbc: "Can't open lib 'ODBC Driver 18 for SQL Server'" | Cloud Shell pode ter v17 em vez de v18 | Mudar `driver = "{ODBC Driver 17 for SQL Server}"` no script |

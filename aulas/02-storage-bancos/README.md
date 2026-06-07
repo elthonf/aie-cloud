@@ -9,7 +9,7 @@ Ao final desta aula, você será capaz de:
 - Diferenciar bancos de dados relacionais (SQL) e NoSQL (documentos), entendendo quando usar cada um.
 - Provisionar um **Azure SQL Database Serverless (auto-pause)** via Terraform e popular tabelas via Python.
 - Aplicar **Azure Key Vault** para eliminar segredos hardcoded (connection strings, API keys).
-- Provisionar **Cosmos DB Free Tier** e popular documentos via Python.
+- Provisionar **Cosmos DB Serverless** e popular documentos via Python.
 - Criar um índice no **Azure AI Search** e fazer busca semântica — base para o RAG dos agentes da QC.
 - Reconhecer quando se usa um banco analítico (Synapse/Fabric) — sem aprofundar no lab.
 - Integrar os componentes provisionados à arquitetura cloud da Quantum Commerce.
