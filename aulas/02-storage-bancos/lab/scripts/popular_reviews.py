@@ -36,7 +36,14 @@ TEMPLATES = [
 
 def main():
     endpoint = os.environ["COSMOS_ENDPOINT"]
-    credential = DefaultAzureCredential()
+    # exclude_managed_identity_credential=True: no Cloud Shell, a Managed Identity
+    # embutida é tentada antes do seu login `az` e NÃO suporta a audience
+    # específica do Cosmos (https://<conta>.documents.azure.com), lançando
+    # AudienceNotSupported e quebrando o DefaultAzureCredential. Excluindo a MI,
+    # ele cai na sua identidade do `az login` (que tem a role data-plane).
+    # Em produção (Function/Container com MI própria) remova este parâmetro:
+    # a MI do recurso suporta a audience do Cosmos normalmente.
+    credential = DefaultAzureCredential(exclude_managed_identity_credential=True)
 
     client = CosmosClient(endpoint, credential=credential)
     db = client.get_database_client("qc-db")
