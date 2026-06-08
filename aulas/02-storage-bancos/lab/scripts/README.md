@@ -30,7 +30,7 @@ Cada script lê o que precisa do ambiente. O guia-lab mostra como exportá-las a
 | Script | Variáveis necessárias |
 |--------|------------------------|
 | `popular_produtos.py` | `KEY_VAULT_NAME`, `STORAGE_ACCOUNT_NAME` |
-| `popular_reviews.py` | `COSMOS_ENDPOINT` |
+| `popular_reviews.py` | `COSMOS_ENDPOINT`, `KEY_VAULT_NAME` |
 | `indexar_produtos.py` | `SEARCH_ENDPOINT`, `STORAGE_ACCOUNT_NAME` |
 
 Atalho para exportar todas:
@@ -54,6 +54,8 @@ python3 indexar_produtos.py
 
 ## Autenticação
 
-Todos os scripts usam **`DefaultAzureCredential`** da `azure-identity`. Ele detecta automaticamente que você está no Cloud Shell autenticado e usa essa identidade — sem precisar de chaves, secrets ou connection strings hardcoded.
+Os scripts usam **`DefaultAzureCredential`** da `azure-identity` para Key Vault, Blob e AI Search — sem chaves hardcoded; a identidade do Cloud Shell é detectada automaticamente.
 
-> **Lição:** em produção, esse mesmo padrão funciona com **Managed Identity** de uma Function/Container/VM. O código não muda; só a fonte da identidade.
+**Exceção — Cosmos DB:** o Cloud Shell **não** consegue emitir token AAD para a audience de data-plane do Cosmos (`AudienceNotSupported`). Por isso o `popular_reviews.py` autentica no Cosmos com a **key**, lida do **Key Vault** (mesmo padrão de "segredo no Vault" do SQL). Continua sem hardcode.
+
+> **Lição:** em produção, uma **Function/Container com Managed Identity** consegue token AAD para o Cosmos e usaria `DefaultAzureCredential` direto (graças à role data-plane do Terraform). A limitação é só do Cloud Shell.

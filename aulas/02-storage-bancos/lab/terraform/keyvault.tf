@@ -37,3 +37,14 @@ resource "azurerm_key_vault_secret" "sql_connection" {
   content_type = "connection-string"
   depends_on   = [time_sleep.wait_rbac]
 }
+
+# Chave primária do Cosmos como segredo. O Cloud Shell NÃO consegue emitir token
+# AAD para a audience de data-plane do Cosmos (AudienceNotSupported), então o
+# script autentica por key — lida daqui, sem hardcode (mesmo padrão do SQL).
+resource "azurerm_key_vault_secret" "cosmos_key" {
+  name         = "cosmos-primary-key"
+  key_vault_id = azurerm_key_vault.qc.id
+  value        = azurerm_cosmosdb_account.qc.primary_key
+  content_type = "cosmos-key"
+  depends_on   = [time_sleep.wait_rbac]
+}

@@ -213,27 +213,20 @@ Abra [cosmos.tf](terraform/cosmos.tf):
 
 > **Por que não Free Tier?** O Free Tier do Cosmos só beneficia *provisioned throughput* (não serverless) e o Azure permite **apenas 1 conta free-tier por assinatura** — o que trava o `apply` se já houver outra. Por isso o lab usa serverless sem free-tier (`var.cosmos_free_tier = false`). Para ligar mesmo assim: `terraform apply -var="cosmos_free_tier=true"`.
 
-#### Passo 2 — Permissão de Data Plane do Cosmos (já provisionada via Terraform)
+#### Passo 2 — Como o script autentica no Cosmos (key via Key Vault)
 
-O Cosmos exige uma role específica (Built-in Data Contributor) para ler/gravar documentos via Python com `DefaultAzureCredential`. **Isso já foi concedido pelo Terraform** — veja em [cosmos.tf](terraform/cosmos.tf) o recurso `azurerm_cosmosdb_sql_role_assignment.qc_data`, que atribui a role ao usuário que rodou o `apply`.
+Aqui há uma **pegadinha importante do Cloud Shell**: ele **não consegue emitir token AAD** para a audience de data-plane do Cosmos (`https://<conta>.documents.azure.com`) — qualquer tentativa de `DefaultAzureCredential` falha com `AudienceNotSupported`. Diferente de Key Vault, Blob e AI Search, que têm audience suportada.
 
-```bash
-# Conferir que a role data-plane existe (opcional)
-COSMOS_NAME=$(cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform && terraform output -raw cosmos_account_name)
-RG=$(cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform && terraform output -raw resource_group_name)
-az cosmosdb sql role assignment list --account-name "$COSMOS_NAME" --resource-group "$RG" -o table
-```
+Por isso o [popular_reviews.py](scripts/popular_reviews.py) autentica no Cosmos com a **key**, lida do **Key Vault** (segredo `cosmos-primary-key`, provisionado pelo Terraform em [keyvault.tf](terraform/keyvault.tf)). É o mesmo padrão "segredo no Vault" do SQL — sem chave hardcoded no código.
 
-> **Antes era um passo manual via `az`.** Movido para o Terraform porque a role é parte da infraestrutura (IaC determinístico, sem race de propagação). Em produção, a Function/Agente que acessa o Cosmos teria sua **Managed Identity** com essa mesma role — o padrão não muda, só a identidade.
->
-> Se mesmo assim der `Forbidden`, a role pode ainda estar propagando — aguarde ~1 min e rode de novo.
+> **E a role data-plane?** O `cosmos.tf` também cria `azurerm_cosmosdb_sql_role_assignment` — mas ela serve para o cenário de **produção**: uma Function/Container com **Managed Identity** própria consegue token AAD para o Cosmos e usaria `DefaultAzureCredential` direto (sem key). A limitação é só do Cloud Shell.
 
 #### Passo 3 — Rodar o script de reviews
 
 [popular_reviews.py](scripts/popular_reviews.py) insere 30 reviews fictícias com diferentes scores.
 
 ```bash
-pip install --user azure-cosmos
+pip install --user azure-cosmos azure-keyvault-secrets azure-identity
 cd ~/aie-cloud/aulas/02-storage-bancos/lab/scripts
 python3 popular_reviews.py
 ```
@@ -362,7 +355,7 @@ Esses recursos serão consumidos por:
 | pyodbc: "Invalid value specified for connection string attribute 'Encrypt'" | Connection string com `Encrypt=true`/`false` (sintaxe .NET); o ODBC exige `yes`/`no` | Já corrigido no `keyvault.tf` (`Encrypt=yes;TrustServerCertificate=no`). Se o segredo foi criado antes do fix, rode `terraform apply` de novo para atualizá-lo |
 | Key Vault: "Forbidden — the user does not have ... action" | RBAC ainda não propagou | `sleep 60` e tentar de novo |
 | Cosmos: "Request is unauthorized" / `Forbidden` | Role data-plane ainda propagando (já é criada pelo Terraform em `cosmos.tf`) | Aguardar ~1 min e rodar de novo. Conferir: `az cosmosdb sql role assignment list --account-name <cosmos> -g <rg> -o table` |
-| Cosmos: `ClientAuthenticationError ... AudienceNotSupported` no Cloud Shell | A Managed Identity do Cloud Shell é tentada antes do seu `az login` e não suporta a audience do Cosmos | Já tratado no `popular_reviews.py` (`DefaultAzureCredential(exclude_managed_identity_credential=True)`). Afeta só o Cosmos (KV/Blob/Search têm audience suportada) |
+| Cosmos: `ClientAuthenticationError ... AudienceNotSupported` no Cloud Shell | O Cloud Shell não emite token AAD para a audience de data-plane do Cosmos (nenhuma credencial consegue) | Já tratado: o `popular_reviews.py` autentica por **key** lida do Key Vault (`cosmos-primary-key`). Afeta só o Cosmos (KV/Blob/Search têm audience suportada) |
 | AI Search: `Operation returned an invalid status 'Forbidden'` ao indexar | Serviço aceitava só API key no data-plane (token AAD recusado) | Já resolvido no `search.tf` (`authentication_failure_mode`). Em serviço criado antes do fix: `terraform apply` de novo |
 | AI Search: `Semantic search is not enabled for this service` | Semantic ranker não habilitado | Já resolvido via `azapi_update_resource.search_semantic` em `search.tf`. Em serviço antigo: `terraform apply` de novo (ou `az search service update --name <svc> -g <rg> --semantic-search free`) |
 | `terraform destroy` falha em Key Vault | Purge protection ou soft-delete | Confirmar `purge_protection_enabled = false` no `keyvault.tf` (já está) |

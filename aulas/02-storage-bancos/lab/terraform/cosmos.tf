@@ -27,10 +27,11 @@ resource "azurerm_cosmosdb_account" "qc" {
   tags = local.tags
 }
 
-# Role data-plane do Cosmos (Built-in Data Contributor, id ...0002) concedida
-# via Terraform ao usuário que roda o apply. Sem ela, o DefaultAzureCredential
-# dos scripts recebe Forbidden ao ler/gravar documentos. Antes era um passo
-# manual via `az` — em IaC fica determinístico e sem race de propagação.
+# Role data-plane do Cosmos (Built-in Data Contributor, id ...0002).
+# OBS.: no Cloud Shell o lab autentica no Cosmos por KEY (o Cloud Shell não
+# emite token AAD para a audience do Cosmos). Esta role existe para o cenário
+# de PRODUÇÃO — uma Function/Container com Managed Identity usaria AAD direto,
+# sem key. Mantida como referência do padrão correto em prod.
 resource "azurerm_cosmosdb_sql_role_assignment" "qc_data" {
   resource_group_name = azurerm_resource_group.rg.name
   account_name        = azurerm_cosmosdb_account.qc.name
