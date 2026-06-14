@@ -3,6 +3,11 @@ output "resource_group_name" {
   value       = azurerm_resource_group.rg.name
 }
 
+output "catalogo_storage_account_name" {
+  description = "Storage Account do catálogo (criado nesta aula, já com produtos.csv)"
+  value       = azurerm_storage_account.catalogo.name
+}
+
 # Function
 output "function_app_name" {
   description = "Nome da Function App (usar no 'func azure functionapp publish')"
@@ -28,5 +33,5 @@ output "acr_name" {
 # ACI (condicional)
 output "aci_fqdn" {
   description = "FQDN do ACI quando habilitado; do contrário, mensagem"
-  value = var.aci_enabled ? azurerm_container_group.aci[0].fqdn : "ACI ainda não habilitado — após pushar imagem, rode 'terraform apply' com -var aci_enabled=true"
+  value       = var.aci_enabled ? azurerm_container_group.aci[0].fqdn : "ACI ainda não habilitado — após pushar imagem, rode 'terraform apply' com -var aci_enabled=true"
 }

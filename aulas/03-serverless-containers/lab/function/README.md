@@ -5,13 +5,13 @@ Duas versões da API HTTP de catálogo da QC, em Python (programming model v2 do
 | Pasta | Quando | Características |
 |-------|--------|-----------------|
 | [v1-mock/](v1-mock/) | L₁ | 5 produtos hardcoded no código. Sem dependências externas. Bom para validar que o deploy funciona. |
-| [v2-blob/](v2-blob/) | L₂ | Lê os 20 produtos reais do **Blob Storage da Aula 2** via **Managed Identity** — **sem credenciais no código**. |
+| [v2-blob/](v2-blob/) | L₂ | Lê os 20 produtos reais do **Blob Storage do catálogo** (criado nesta aula) via **Managed Identity** — **sem credenciais no código**. |
 
 Cada pasta é **self-contained** (`function_app.py` + `host.json` + `requirements.txt`), pronta para `func azure functionapp publish` de dentro dela.
 
 ## Como fazer deploy
 
-Pré-requisito: Terraform da Aula 3 já aplicado (Phase 1 — provisiona a Function App), com `STORAGE_AULA2` e `RG_AULA2` exportados (ver [../terraform/README.md](../terraform/README.md)).
+Pré-requisito: Terraform da Aula 3 já aplicado (Phase 1 — provisiona a Function App e o Storage de catálogo). Sem dependência da Aula 2 (ver [../terraform/README.md](../terraform/README.md)).
 
 ```bash
 # Pegar o nome da Function App

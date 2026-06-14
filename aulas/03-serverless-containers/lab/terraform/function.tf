@@ -20,16 +20,16 @@ resource "azurerm_linux_function_app" "fn" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
     "AzureWebJobsFeatureFlags" = "EnableWorkerIndexing"
-    "STORAGE_ACCOUNT_AULA2"    = var.storage_account_aula2
+    "STORAGE_ACCOUNT_CATALOGO" = azurerm_storage_account.catalogo.name
   }
 
   tags = local.tags
 }
 
-# Permissão para a Managed Identity da Function ler blobs do Storage da Aula 2
+# Permissão para a Managed Identity da Function ler blobs do Storage do catálogo.
 # É o que permite a versão v2-blob da Function operar sem credenciais no código.
 resource "azurerm_role_assignment" "fn_blob_reader" {
-  scope                = data.azurerm_storage_account.aula2.id
+  scope                = azurerm_storage_account.catalogo.id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_linux_function_app.fn.identity[0].principal_id
 }

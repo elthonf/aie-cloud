@@ -1,12 +1,12 @@
 """
 Function HTTP da Quantum Commerce — versão L₂.
 
-Lê produtos.csv do Blob Storage da Aula 2 via Managed Identity.
+Lê produtos.csv do Blob Storage do catálogo (criado nesta aula) via Managed Identity.
 SEM credenciais no código — autenticação via DefaultAzureCredential que detecta
 a Managed Identity SystemAssigned do Function App em runtime.
 
 Variável de ambiente esperada (configurada pelo Terraform):
-    STORAGE_ACCOUNT_AULA2 — nome do Storage Account com o container 'catalogo'
+    STORAGE_ACCOUNT_CATALOGO — nome do Storage Account com o container 'catalogo'
 """
 import csv
 import json
@@ -19,7 +19,7 @@ from azure.storage.blob import BlobServiceClient
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-STORAGE_ACCOUNT = os.environ["STORAGE_ACCOUNT_AULA2"]
+STORAGE_ACCOUNT = os.environ["STORAGE_ACCOUNT_CATALOGO"]
 CONTAINER       = "catalogo"
 BLOB_NAME       = "produtos.csv"
 

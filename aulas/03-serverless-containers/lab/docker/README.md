@@ -36,8 +36,9 @@ cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
 docker build -t produtos-api:v1 .
 
 # Teste local (opcional — vai falhar em /produtos porque Cloud Shell não tem MI)
+STORAGE_CATALOGO=$(cd ../terraform && terraform output -raw catalogo_storage_account_name)
 docker run --rm -p 8080:8080 \
-  -e STORAGE_ACCOUNT_AULA2="$STORAGE_AULA2" \
+  -e STORAGE_ACCOUNT_CATALOGO="$STORAGE_CATALOGO" \
   produtos-api:v1 &
 sleep 3
 curl http://localhost:8080/health
@@ -56,10 +57,7 @@ docker push "$ACR/produtos-api:v1"
 
 ```bash
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
-terraform apply -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2" \
-  -var="aci_enabled=true"
+terraform apply -auto-approve -var="aci_enabled=true"
 ```
 
 ## Testar o ACI

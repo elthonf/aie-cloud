@@ -21,40 +21,16 @@ Wrap-up    — terraform destroy + verificação custo zero              ~10 min
 
 ## Pré-requisitos
 
-- ✅ Aulas 1 e 2 concluídas (Cloud Shell funcional, Terraform rodando)
-- ✅ **Storage da Aula 2 aplicado** com `produtos.csv` no container `catalogo`
+- ✅ Aula 1 concluída (Cloud Shell funcional, Terraform rodando)
 - ✅ Repositório `aie-cloud` clonado no Cloud Shell
 
-Se você destruiu o Storage da Aula 2, re-aplique antes:
-
-```bash
-cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-SQL_PASSWORD=$(openssl rand -base64 24)
-terraform apply -auto-approve -var="sql_admin_password=$SQL_PASSWORD"
-
-# Re-upload do CSV (caso o container catalogo esteja vazio)
-STORAGE=$(terraform output -raw storage_account_name)
-az storage blob upload \
-  --account-name "$STORAGE" --container-name catalogo \
-  --name produtos.csv \
-  --file ~/aie-cloud/aulas/02-storage-bancos/lab/data/produtos.csv \
-  --auth-mode login --overwrite
-```
+> **Aula independente:** esta aula **não depende da Aula 2**. O Terraform cria
+> seu próprio Storage Account de catálogo e já sobe o `produtos.csv` no `apply`
+> (de [lab/data/produtos.csv](data/produtos.csv)). Nada de exportar outputs da Aula 2.
 
 ---
 
 ## Preparação (5 min)
-
-### Pegar os outputs da Aula 2
-
-```bash
-cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-export STORAGE_AULA2=$(terraform output -raw storage_account_name)
-export RG_AULA2=$(terraform output -raw resource_group_name)
-
-echo "Storage da Aula 2: $STORAGE_AULA2"
-echo "RG da Aula 2:      $RG_AULA2"
-```
 
 ### Confirmar ferramentas no Cloud Shell
 
@@ -92,13 +68,11 @@ cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
 
 terraform init
 
-terraform apply -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2"
+terraform apply -auto-approve
 # aci_enabled=false (default) → ACI não é criado
 ```
 
-Tempo: ~3-5 min. Anote os outputs (`function_app_name`, `acr_login_server`).
+Tempo: ~3-5 min. Isso já cria o Storage do catálogo e sobe o `produtos.csv`. Anote os outputs (`function_app_name`, `acr_login_server`, `catalogo_storage_account_name`).
 
 ### Passo 2 — Deploy da versão mock (v1)
 
@@ -134,15 +108,15 @@ curl -s "$HOSTNAME/api/produtos?nome=cadeira" | python3 -m json.tool
 
 ## Atividade 2 — Function lendo Blob via Managed Identity
 
-**Objetivo:** Trocar o mock por dados reais do Blob da Aula 2. **Sem credenciais no código** — autenticação via Managed Identity SystemAssigned (já criada no Passo 1).
+**Objetivo:** Trocar o mock por dados reais do Blob do catálogo (criado nesta aula). **Sem credenciais no código** — autenticação via Managed Identity SystemAssigned (já criada no Passo 1).
 
 ### Conferir o que já foi provisionado
 
 Abra [function.tf](terraform/function.tf) e observe:
 
 - **`identity { type = "SystemAssigned" }`** no Function App — Azure cria automaticamente uma identidade gerenciada
-- **`app_settings.STORAGE_ACCOUNT_AULA2`** — variável de ambiente já injetada (vem da var Terraform)
-- **`azurerm_role_assignment.fn_blob_reader`** — concede `Storage Blob Data Reader` à Managed Identity no Storage da Aula 2
+- **`app_settings.STORAGE_ACCOUNT_CATALOGO`** — variável de ambiente já injetada (nome do Storage de catálogo desta aula)
+- **`azurerm_role_assignment.fn_blob_reader`** — concede `Storage Blob Data Reader` à Managed Identity no Storage do catálogo
 
 > **Tudo isso já foi aplicado no Passo 1 da Atividade 1.** Não há novo `terraform apply` aqui — só novo deploy de código.
 
@@ -210,8 +184,9 @@ cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
 docker build -t produtos-api:v1 .
 
 # Teste local opcional (vai falhar em /produtos — Cloud Shell não tem MI no container)
+STORAGE_CATALOGO=$(cd ../terraform && terraform output -raw catalogo_storage_account_name)
 docker run --rm -p 8080:8080 \
-  -e STORAGE_ACCOUNT_AULA2="$STORAGE_AULA2" \
+  -e STORAGE_ACCOUNT_CATALOGO="$STORAGE_CATALOGO" \
   produtos-api:v1 &
 sleep 3
 curl http://localhost:8080/health   # funciona
@@ -234,10 +209,7 @@ Com a imagem no ACR, agora habilita o ACI:
 ```bash
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
 
-terraform apply -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2" \
-  -var="aci_enabled=true"
+terraform apply -auto-approve -var="aci_enabled=true"
 ```
 
 Tempo: ~1 min. O ACI puxa a imagem do ACR e sobe o container.
@@ -282,28 +254,12 @@ Para a QC, qual você levaria para produção da API de catálogo? Justifique em
 ```bash
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
 
-terraform destroy -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2" \
-  -var="aci_enabled=true"
+terraform destroy -auto-approve -var="aci_enabled=true"
 ```
 
-Tempo: ~2 min. O Storage da Aula 2 NÃO é destruído (é `data` source).
+Tempo: ~2 min. Tudo desta aula é removido — inclusive o Storage do catálogo (ele é desta aula, não da Aula 2).
 
-### Passo 2 — Decidir sobre a Aula 2
-
-Opções:
-
-1. **Manter Aula 2 aplicada** — útil para exercícios de container/agente que reusem os dados
-2. **Destruir Aula 2 também** — re-aplicar antes da Aula 4
-
-```bash
-# Opção 2: destruir Aula 2 também (recomendado para custo zero garantido)
-cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-terraform destroy -auto-approve -var="sql_admin_password=qualquer"
-```
-
-### Passo 3 — Verificar custo
+### Passo 2 — Verificar custo
 
 Portal → **Cost Management** → **Análise de Custo** → filtrar por hoje. Total deve estar < $1.
 
@@ -345,7 +301,7 @@ Na Aula 4 vamos adicionar mais tools (busca por imagem com Vision, transcrição
 | `func: command not found` | Functionalidade não habilitada no Cloud Shell | Executar `npm install -g azure-functions-core-tools@4 --unsafe-perm true` (geralmente já vem por padrão) |
 | `func azure functionapp publish` retorna 401 | Cloud Shell não autenticado | `az login` ou `az account set --subscription <id>` |
 | Function retorna 403 "AuthorizationFailed" | MI ainda propagando | Aguardar 1-2 min |
-| Function retorna 500 "STORAGE_ACCOUNT_AULA2 not set" | Variável de ambiente não chegou | Verificar `app_settings` no TF + `terraform apply` de novo |
+| Function retorna 500 "STORAGE_ACCOUNT_CATALOGO not set" | Variável de ambiente não chegou | Verificar `app_settings` no TF + `terraform apply` de novo |
 | `docker build` "no space left on device" | Quota do Cloud Shell esgotada | Usar `az acr build` (build server-side) |
 | ACI fica em "Pulling image" eternamente | Credencial do ACR errada | Verificar `image_registry_credential` no TF; testar `docker pull <acr>/produtos-api:v1` |
 | ACI "Crashed" | App levantou e morreu | `az container logs -n <aci-name> -g <rg>` para ver erro |

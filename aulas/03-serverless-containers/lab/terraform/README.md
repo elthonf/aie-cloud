@@ -2,22 +2,15 @@
 
 Código IaC para provisionar a **camada de compute** da Quantum Commerce:
 
+- Storage Account de catálogo **criado nesta aula** + upload automático do `produtos.csv`
 - Azure Function App (Consumption Plan Y1, free, com Managed Identity SystemAssigned)
 - Azure Container Registry (Basic SKU)
 - Managed Identity user-assigned para o ACI
-- Role assignments para ler blobs do Storage da Aula 2 (sem credenciais no código)
+- Role assignments para ler blobs do Storage do catálogo (sem credenciais no código)
 - Azure Container Instances (habilitado via flag `aci_enabled` após push da imagem)
 
-## Pré-requisito
-
-O Storage Account da Aula 2 precisa estar aplicado (contém o `produtos.csv` no container `catalogo`). Pegue os valores antes:
-
-```bash
-cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-STORAGE_AULA2=$(terraform output -raw storage_account_name)
-RG_AULA2=$(terraform output -raw resource_group_name)
-echo "Storage: $STORAGE_AULA2 | RG: $RG_AULA2"
-```
+> **Independente da Aula 2.** Não é preciso aplicar nada da Aula 2 nem passar
+> variáveis de storage — esta aula cria o próprio catálogo e sobe o CSV no apply.
 
 ## Como usar (no Azure Cloud Shell)
 
@@ -27,44 +20,35 @@ echo "Storage: $STORAGE_AULA2 | RG: $RG_AULA2"
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
 
 terraform init
-
-terraform apply -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2"
+terraform apply -auto-approve
 # aci_enabled fica em false (default) → não cria ACI ainda
 ```
 
-Provisiona: Resource Group + Function App + ACR + UAI + role assignments.
+Provisiona: Resource Group + Storage de catálogo (com produtos.csv) + Function App + ACR + UAI + role assignments.
 
 ### Phase 2 — Após pushar a imagem ao ACR, habilitar o ACI
 
 ```bash
 # (depois de fazer 'az acr build' ou 'docker push' da imagem produtos-api:v1)
-
-terraform apply -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2" \
-  -var="aci_enabled=true"
+terraform apply -auto-approve -var="aci_enabled=true"
 ```
 
 ### Destroy (regra de ouro — custo zero ao final)
 
 ```bash
-terraform destroy -auto-approve \
-  -var="storage_account_aula2=$STORAGE_AULA2" \
-  -var="resource_group_aula2=$RG_AULA2" \
-  -var="aci_enabled=true"
+terraform destroy -auto-approve -var="aci_enabled=true"
 ```
 
-> O Storage da Aula 2 NÃO é destruído por este Terraform — ele é referenciado como `data` source.
+> Tudo é removido, inclusive o Storage do catálogo (ele é desta aula).
 
 ## Arquivos
 
 | Arquivo | O que define |
 |---------|--------------|
-| [main.tf](main.tf) | Providers, RG, sufixo aleatório, locals, storage da Function, plan Y1, data source Aula 2 |
-| [variables.tf](variables.tf) | `location`, `storage_account_aula2`, `resource_group_aula2`, `aci_enabled` |
-| [outputs.tf](outputs.tf) | `function_app_name`, `function_app_default_hostname`, `acr_login_server`, `acr_name`, `aci_fqdn` |
+| [main.tf](main.tf) | Providers, RG, sufixo aleatório, locals, Consumption Plan Y1 |
+| [storage.tf](storage.tf) | Storage da Function + Storage do catálogo + container + upload do produtos.csv |
+| [variables.tf](variables.tf) | `location`, `aci_enabled` |
+| [outputs.tf](outputs.tf) | `function_app_name`, `function_app_default_hostname`, `acr_login_server`, `acr_name`, `aci_fqdn`, `catalogo_storage_account_name` |
 | [function.tf](function.tf) | Function App + Managed Identity + role Blob Data Reader |
 | [containers.tf](containers.tf) | ACR + UAI + role + ACI (count condicional) |
 

@@ -13,7 +13,7 @@ from fastapi import FastAPI, HTTPException
 
 app = FastAPI(title="Quantum Commerce — Catálogo API", version="1.0")
 
-STORAGE_ACCOUNT = os.environ["STORAGE_ACCOUNT_AULA2"]
+STORAGE_ACCOUNT = os.environ["STORAGE_ACCOUNT_CATALOGO"]
 CONTAINER       = "catalogo"
 BLOB_NAME       = "produtos.csv"
 

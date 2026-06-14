@@ -26,7 +26,7 @@ Nesta aula você implanta a **API de catálogo** da Quantum Commerce — primeir
 1. **Function HTTP (Python)** — pay-per-call, scale automático, free tier de 1M execuções/mês.
 2. **Container (FastAPI + ACI)** — mesma lógica de negócio empacotada em container, com Managed Identity user-assigned.
 
-Ambas leem `produtos.csv` do Blob Storage da Aula 2 — **sem credenciais hardcoded**, via Managed Identity.
+Ambas leem `produtos.csv` de um Blob Storage **criado nesta própria aula** — **sem credenciais hardcoded**, via Managed Identity.
 
 ---
 
@@ -49,12 +49,9 @@ Esta aula gera a **3ª entrega de grupo** (10% da nota): instruções em [entreg
 
 ## Pré-requisitos
 
-- ✅ Aulas 1 e 2 concluídas
-- ✅ **Storage da Aula 2 aplicado** (com `produtos.csv` no container `catalogo`) — se você destruiu, re-aplique antes:
+- ✅ Aula 1 concluída (Cloud Shell + Terraform funcionando)
+- ✅ Repositório `aie-cloud` clonado no Cloud Shell
 
-  ```bash
-  cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-  terraform apply -auto-approve -var="sql_admin_password=$(openssl rand -base64 24)"
-  ```
-
-  Depois faça upload do CSV (Atividade 1 do guia da Aula 2) se ainda não tiver.
+> **Aula independente da Aula 2.** O Terraform desta aula cria o próprio Storage
+> de catálogo e já sobe o `produtos.csv` ([lab/data/produtos.csv](lab/data/produtos.csv))
+> no `apply`. Nenhum passo da Aula 2 é necessário.

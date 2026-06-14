@@ -2,7 +2,7 @@
 Function HTTP da Quantum Commerce — versão L₁ (mock data).
 Sem dependências externas, sem credenciais. Bom para validar que o deploy funciona.
 
-No L₂ vamos plugar no Blob da Aula 2 via Managed Identity (versão em ../v2-blob/).
+No L₂ vamos plugar no Blob do catálogo (criado nesta aula) via Managed Identity (versão em ../v2-blob/).
 """
 import json
 import logging

@@ -16,10 +16,10 @@ resource "azurerm_user_assigned_identity" "aci_id" {
   tags                = local.tags
 }
 
-# Permissão para a UAI do ACI ler blobs do Storage da Aula 2
+# Permissão para a UAI do ACI ler blobs do Storage do catálogo
 # (já podemos conceder antes do ACI existir — a role pertence à identidade, não ao ACI)
 resource "azurerm_role_assignment" "aci_blob_reader" {
-  scope                = data.azurerm_storage_account.aula2.id
+  scope                = azurerm_storage_account.catalogo.id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_user_assigned_identity.aci_id.principal_id
 }
@@ -59,7 +59,7 @@ resource "azurerm_container_group" "aci" {
     }
 
     environment_variables = {
-      STORAGE_ACCOUNT_AULA2 = var.storage_account_aula2
+      STORAGE_ACCOUNT_CATALOGO = azurerm_storage_account.catalogo.name
     }
   }
 
