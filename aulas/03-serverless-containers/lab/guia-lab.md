@@ -57,7 +57,7 @@ Leia rapidamente cada `.tf` (3 min) — veja o [README do Terraform](terraform/R
 
 ## Atividade 1 — Function HTTP via Terraform + deploy
 
-**Objetivo:** Provisionar uma Azure Function App (Consumption Plan Y1 — grátis até 1M execuções/mês) e fazer deploy de uma função HTTP simples em Python (versão mock).
+**Objetivo:** Provisionar uma Azure Function App em **Flex Consumption** (plano FC1 — sucessor do Linux Consumption/Y1, que será aposentado em set/2028) e fazer deploy de uma função HTTP simples em Python (versão mock).
 
 ### Passo 1 — Phase 1 do Terraform
 

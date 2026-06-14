@@ -1,8 +1,10 @@
 terraform {
   required_providers {
     azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.100"
+      source = "hashicorp/azurerm"
+      # 4.x é necessário para azurerm_function_app_flex_consumption (Flex Consumption,
+      # sucessor do Linux Consumption/Y1 que será aposentado em set/2028).
+      version = ">= 4.4, < 5.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -37,13 +39,14 @@ resource "azurerm_resource_group" "rg" {
   tags     = local.tags
 }
 
-# Consumption Plan (Y1) — pay per execution, 1M req/mês grátis
+# Flex Consumption Plan (FC1) — sucessor do Linux Consumption/Y1 (que será
+# aposentado em set/2028). Pay-per-execution, cold start menor, escala melhor.
 resource "azurerm_service_plan" "plan" {
   name                = "asp-qc-aula03-${random_string.sufixo.result}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = "FC1"
   tags                = local.tags
 }
 

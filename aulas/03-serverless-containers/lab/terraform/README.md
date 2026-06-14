@@ -3,7 +3,7 @@
 Código IaC para provisionar a **camada de compute** da Quantum Commerce:
 
 - Storage Account de catálogo **criado nesta aula** + upload automático do `produtos.csv`
-- Azure Function App (Consumption Plan Y1, free, com Managed Identity SystemAssigned)
+- Azure Function App em **Flex Consumption** (plano FC1, sucessor do Linux Consumption/Y1, com Managed Identity SystemAssigned)
 - Azure Container Registry (Basic SKU)
 - Managed Identity user-assigned para o ACI
 - Role assignments para ler blobs do Storage do catálogo (sem credenciais no código)
@@ -45,7 +45,7 @@ terraform destroy -auto-approve -var="aci_enabled=true"
 
 | Arquivo | O que define |
 |---------|--------------|
-| [main.tf](main.tf) | Providers, RG, sufixo aleatório, locals, Consumption Plan Y1 |
+| [main.tf](main.tf) | Providers (azurerm 4.x), RG, sufixo aleatório, locals, Flex Consumption Plan FC1 |
 | [storage.tf](storage.tf) | Storage da Function + Storage do catálogo + container + upload do produtos.csv |
 | [variables.tf](variables.tf) | `location`, `aci_enabled` |
 | [outputs.tf](outputs.tf) | `function_app_name`, `function_app_default_hostname`, `acr_login_server`, `acr_name`, `aci_fqdn`, `catalogo_storage_account_name` |

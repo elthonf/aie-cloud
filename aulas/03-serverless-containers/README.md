@@ -6,7 +6,7 @@ Ao final desta aula, você será capaz de:
 
 - Comparar os 3 modelos de compute: VMs, Containers e Serverless (Functions).
 - Decidir qual modelo usar para cada tipo de workload da QC.
-- Provisionar uma **Azure Function App** (Consumption Plan Y1, free) via Terraform e fazer deploy com `func`.
+- Provisionar uma **Azure Function App** em **Flex Consumption** (plano FC1) via Terraform e fazer deploy com `func`.
 - Acessar recursos do Azure **sem credenciais no código** usando **Managed Identity** (System-assigned e User-assigned).
 - Empacotar uma aplicação Python (FastAPI) em **container Docker**, publicar no **Azure Container Registry** e rodar no **Azure Container Instances**.
 - Entender o papel do Kubernetes/AKS e quando ele **não** é a melhor escolha.
@@ -23,7 +23,7 @@ A camada de **compute** é onde os agentes da QC vão **rodar** (Functions chama
 
 Nesta aula você implanta a **API de catálogo** da Quantum Commerce — primeira **tool** que os agentes da QC vão chamar. Dois sabores:
 
-1. **Function HTTP (Python)** — pay-per-call, scale automático, free tier de 1M execuções/mês.
+1. **Function HTTP (Python)** — Flex Consumption: pay-per-execution, escala a zero, cold start menor.
 2. **Container (FastAPI + ACI)** — mesma lógica de negócio empacotada em container, com Managed Identity user-assigned.
 
 Ambas leem `produtos.csv` de um Blob Storage **criado nesta própria aula** — **sem credenciais hardcoded**, via Managed Identity.

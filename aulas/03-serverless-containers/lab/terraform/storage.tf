@@ -1,4 +1,4 @@
-# Storage Account obrigatório para a Function (estado interno + logs)
+# Storage Account obrigatório para a Function (estado interno + pacote de deploy)
 resource "azurerm_storage_account" "func_sa" {
   name                     = "stfunc${random_string.sufixo.result}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -7,6 +7,12 @@ resource "azurerm_storage_account" "func_sa" {
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
   tags                     = local.tags
+}
+
+# Container onde o Flex Consumption guarda o pacote de deploy da Function
+resource "azurerm_storage_container" "deployments" {
+  name               = "deployments"
+  storage_account_id = azurerm_storage_account.func_sa.id
 }
 
 # Storage do CATÁLOGO da QC — criado NESTA aula (Aula 3 é independente da Aula 2).
@@ -23,16 +29,15 @@ resource "azurerm_storage_account" "catalogo" {
 
 resource "azurerm_storage_container" "catalogo" {
   name                  = "catalogo"
-  storage_account_name  = azurerm_storage_account.catalogo.name
+  storage_account_id    = azurerm_storage_account.catalogo.id
   container_access_type = "private"
 }
 
 # Sobe o produtos.csv automaticamente no apply — sem passo de upload manual.
 # A Aula 3 fica autossuficiente (não precisa do storage nem do CSV da Aula 2).
 resource "azurerm_storage_blob" "produtos" {
-  name                   = "produtos.csv"
-  storage_account_name   = azurerm_storage_account.catalogo.name
-  storage_container_name = azurerm_storage_container.catalogo.name
-  type                   = "Block"
-  source                 = "${path.module}/../data/produtos.csv"
+  name                 = "produtos.csv"
+  storage_container_id = azurerm_storage_container.catalogo.id
+  type                 = "Block"
+  source               = "${path.module}/../data/produtos.csv"
 }
