@@ -26,10 +26,10 @@ terraform apply -auto-approve
 
 Provisiona: Resource Group + Storage de catálogo (com produtos.csv) + Function App + ACR + UAI + role assignments.
 
-### Phase 2 — Após pushar a imagem ao ACR, habilitar o ACI
+### Phase 2 — Após importar a imagem no ACR, habilitar o ACI
 
 ```bash
-# (depois de fazer 'az acr build' ou 'docker push' da imagem produtos-api:v1)
+# (depois do 'az acr import' da imagem produtos-api:v1 do GHCR — ver docker/README)
 terraform apply -auto-approve -var="aci_enabled=true"
 ```
 

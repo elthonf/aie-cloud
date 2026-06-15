@@ -21,7 +21,7 @@ output "function_app_default_hostname" {
 
 # Container Registry
 output "acr_login_server" {
-  description = "Endereço do ACR (usar para 'docker tag' e 'docker push')"
+  description = "Endereço do ACR (destino do 'az acr import' da imagem do GHCR)"
   value       = azurerm_container_registry.acr.login_server
 }
 

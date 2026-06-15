@@ -10,50 +10,45 @@ Versão **FastAPI** da API de catálogo da QC, com mesma lógica de negócio da 
 | [requirements.txt](requirements.txt) | Dependências (FastAPI + Uvicorn + azure-identity + azure-storage-blob) |
 | [Dockerfile](Dockerfile) | Multi-stage build, imagem final leve (~150 MB) |
 
-## Build & push (modo recomendado: server-side via ACR)
+## Por que não buildar no Cloud Shell?
 
-Pré-requisito: Terraform da Aula 3 já aplicado (Phase 1), com ACR provisionado.
+Nas contas **Azure for Students**, o **ACR Tasks é bloqueado** (`az acr build` → `TasksOperationsNotAllowed`) e o **Cloud Shell não tem daemon Docker** (`docker build` não roda). Por isso a imagem é **construída e publicada uma vez no GHCR pelo professor**, e cada aluno só **importa** a imagem pronta para o seu ACR via `az acr import` (operação permitida, sem Tasks e sem Docker local).
+
+## Passo A — Publicar no GHCR (PROFESSOR, 1× por turma)
+
+Feito numa máquina/Codespace **com Docker** (Codespaces já é `linux/amd64`, ideal):
 
 ```bash
-ACR=$(cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform && terraform output -raw acr_name)
+cd aulas/03-serverless-containers/lab/docker
 
-# Build da imagem no servidor do ACR (não usa quota do Cloud Shell)
-cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
-az acr build -t produtos-api:v1 -r "$ACR" .
+# Login no GHCR com um PAT do GitHub (escopo write:packages)
+echo "$GHCR_PAT" | docker login ghcr.io -u elthonf --password-stdin
+
+# IMPORTANTE: ACI roda linux/amd64 — force a plataforma (essencial em Mac ARM)
+docker build --platform linux/amd64 -t ghcr.io/elthonf/produtos-api:v1 .
+docker push ghcr.io/elthonf/produtos-api:v1
+```
+
+Depois, no GitHub: **Packages → produtos-api → Package settings → Change visibility → Public**
+(imagem pública dispensa credenciais no `az acr import` do aluno).
+
+> Ajuste `elthonf` para o owner real do GHCR, se for outro.
+
+## Passo B — Importar a imagem no seu ACR (ALUNO, no Cloud Shell)
+
+```bash
+ACR_NAME=$(cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform && terraform output -raw acr_name)
+
+az acr import \
+  --name "$ACR_NAME" \
+  --source ghcr.io/elthonf/produtos-api:v1 \
+  --image produtos-api:v1
 
 # Confirmar
-az acr repository list -n "$ACR" -o table
+az acr repository list -n "$ACR_NAME" -o table
 ```
 
-`az acr build` é **mais robusto** que `docker build` local no Cloud Shell (que pode esgotar quota de disco).
-
-## Build & push (alternativa: docker local no Cloud Shell)
-
-```bash
-cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
-
-# Build local
-docker build -t produtos-api:v1 .
-
-# Teste local (opcional — vai falhar em /produtos porque Cloud Shell não tem MI)
-STORAGE_CATALOGO=$(cd ../terraform && terraform output -raw catalogo_storage_account_name)
-docker run --rm -p 8080:8080 \
-  -e STORAGE_ACCOUNT_CATALOGO="$STORAGE_CATALOGO" \
-  produtos-api:v1 &
-sleep 3
-curl http://localhost:8080/health
-docker stop $(docker ps -lq)
-
-# Login no ACR e push
-ACR=$(cd ../terraform && terraform output -raw acr_login_server)
-ACR_NAME=$(cd ../terraform && terraform output -raw acr_name)
-az acr login -n "$ACR_NAME"
-
-docker tag produtos-api:v1 "$ACR/produtos-api:v1"
-docker push "$ACR/produtos-api:v1"
-```
-
-## Depois do push, habilitar o ACI
+## Depois da importação, habilitar o ACI
 
 ```bash
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform

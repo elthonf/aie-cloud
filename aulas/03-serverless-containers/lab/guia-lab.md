@@ -11,7 +11,7 @@
 ```
 Atividade 1 — Function HTTP via Terraform + deploy com 'func'        ~30 min  (L₁)
 Atividade 2 — Function lendo Blob (CSV QC) via Managed Identity      ~45 min  (L₂)
-Atividade 3 — Mesmo código em container: Dockerfile + ACR + ACI      ~50 min  (L₃)
+Atividade 3 — Mesmo código em container: import no ACR + ACI         ~50 min  (L₃)
 Wrap-up    — terraform destroy + verificação custo zero              ~10 min
 ```
 
@@ -155,52 +155,32 @@ Anote no `entrega-grupo-aula03.md` do seu grupo:
 
 ---
 
-## Atividade 3 — Containerização + ACR + ACI
+## Atividade 3 — Imagem de container no ACR + ACI
 
-**Objetivo:** Pegar o **mesmo código** (em FastAPI) e empacotá-lo num container Docker. Publicar no ACR e rodar no ACI com Managed Identity user-assigned.
+**Objetivo:** Levar o **mesmo código** (em FastAPI, empacotado em container) para o seu ACR e rodá-lo no ACI com Managed Identity user-assigned. A imagem já vem pronta (publicada no GHCR pelo professor) — você a **importa** para o ACR e o ACI a executa.
 
 ### Conferir o código FastAPI
 
-[docker/app.py](docker/app.py) tem a mesma lógica da Function v2-blob (lê Blob via MI), mas usando FastAPI. O [Dockerfile](docker/Dockerfile) usa **multi-stage build** para imagem leve (~150 MB).
+[docker/app.py](docker/app.py) tem a mesma lógica da Function v2-blob (lê Blob via MI), mas usando FastAPI. O [Dockerfile](docker/Dockerfile) usa **multi-stage build** para imagem leve (~150 MB) — é essa imagem que o professor publica no GHCR.
 
-### Passo 1 — Build da imagem via ACR Tasks (recomendado)
+### Passo 1 — Importar a imagem do GHCR para o seu ACR
 
-Usa o servidor do ACR para fazer o build — **não consome quota** do Cloud Shell:
+> **Por que não buildar aqui?** Nas contas Azure for Students o **ACR Tasks é bloqueado** (`az acr build` falha com `TasksOperationsNotAllowed`) e o **Cloud Shell não tem Docker**. Por isso a imagem é construída **uma vez pelo professor** e publicada no **GHCR** (registry do GitHub); você só a **importa** para o seu ACR — operação permitida, sem Tasks e sem Docker local.
 
 ```bash
 ACR_NAME=$(cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform && terraform output -raw acr_name)
 
-cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
-az acr build -t produtos-api:v1 -r "$ACR_NAME" .
+# Importa a imagem pública do GHCR para o seu ACR (poucos segundos)
+az acr import \
+  --name "$ACR_NAME" \
+  --source ghcr.io/elthonf/produtos-api:v1 \
+  --image produtos-api:v1
 
-# Confirmar
+# Confirmar que a imagem chegou
 az acr repository list -n "$ACR_NAME" -o table
 ```
 
-### Passo 1 (alternativa) — Build local no Cloud Shell
-
-```bash
-cd ~/aie-cloud/aulas/03-serverless-containers/lab/docker
-docker build -t produtos-api:v1 .
-
-# Teste local opcional (vai falhar em /produtos — Cloud Shell não tem MI no container)
-STORAGE_CATALOGO=$(cd ../terraform && terraform output -raw catalogo_storage_account_name)
-docker run --rm -p 8080:8080 \
-  -e STORAGE_ACCOUNT_CATALOGO="$STORAGE_CATALOGO" \
-  produtos-api:v1 &
-sleep 3
-curl http://localhost:8080/health   # funciona
-curl 'http://localhost:8080/produtos?categoria=moveis'  # falha (sem MI local)
-docker stop $(docker ps -lq)
-
-# Push para o ACR
-ACR=$(cd ../terraform && terraform output -raw acr_login_server)
-ACR_NAME=$(cd ../terraform && terraform output -raw acr_name)
-az acr login -n "$ACR_NAME"
-
-docker tag produtos-api:v1 "$ACR/produtos-api:v1"
-docker push "$ACR/produtos-api:v1"
-```
+> O código FastAPI está em [docker/](docker/) para você ler — é a mesma lógica da Function v2-blob. Como ela foi construída/publicada no GHCR está no [docker/README.md](docker/README.md) (Passo A — professor).
 
 ### Passo 2 — Phase 2 do Terraform (habilitar ACI)
 
@@ -302,8 +282,10 @@ Na Aula 4 vamos adicionar mais tools (busca por imagem com Vision, transcrição
 | `func azure functionapp publish` retorna 401 | Cloud Shell não autenticado | `az login` ou `az account set --subscription <id>` |
 | Function retorna 403 "AuthorizationFailed" | MI ainda propagando | Aguardar 1-2 min |
 | Function retorna 500 "STORAGE_ACCOUNT_CATALOGO not set" | Variável de ambiente não chegou | Verificar `app_settings` no TF + `terraform apply` de novo |
-| `docker build` "no space left on device" | Quota do Cloud Shell esgotada | Usar `az acr build` (build server-side) |
-| ACI fica em "Pulling image" eternamente | Credencial do ACR errada | Verificar `image_registry_credential` no TF; testar `docker pull <acr>/produtos-api:v1` |
+| `az acr build` → `TasksOperationsNotAllowed` | ACR Tasks é bloqueado em contas Azure for Students | Não usar build no aluno — importar a imagem do GHCR com `az acr import` (Passo 1) |
+| `az acr import` → imagem não encontrada / unauthorized | Imagem do GHCR ainda não publicada ou não está pública | Professor precisa publicar `ghcr.io/elthonf/produtos-api:v1` como **público** (ver docker/README, Passo A) |
+| ACI "Crashed" com `exec format error` | Imagem buildada em arquitetura errada (ex.: ARM no Mac) | Rebuildar com `--platform linux/amd64` e re-publicar no GHCR |
+| ACI fica em "Pulling image" eternamente | Credencial do ACR errada | Verificar `image_registry_credential` no TF; confirmar que a imagem está no ACR (`az acr repository list`) |
 | ACI "Crashed" | App levantou e morreu | `az container logs -n <aci-name> -g <rg>` para ver erro |
 | ACI retorna timeout no `curl` | DNS ainda propagando | Aguardar 30s |
 | FastAPI roda local mas falha no ACI | MI não propagou para subscription | Aguardar 1-2 min e tentar de novo |
