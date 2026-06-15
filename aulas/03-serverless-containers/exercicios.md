@@ -13,7 +13,7 @@
 Esta é a **3ª entrega de grupo** da disciplina. Os 3 níveis são **divisão de trabalho dentro do grupo**:
 
 - 🟢 **Nível 1 — Básico:** serverless, Managed Identity, Function vs Container, Dockerfile review
-- 🟡 **Nível 2 — Intermediário:** segunda tool (cálculo de frete), Application Insights e observabilidade, migração para Container Apps
+- 🟡 **Nível 2 — Intermediário:** segunda tool (cálculo de frete), Application Insights e observabilidade, endurecimento/dimensionamento do ACI
 - 🔴 **Nível 3 — Avançado:** **bônus opcional** — spec de tool para agente AI, benchmark de carga, CI/CD com GitHub Actions + OIDC
 
 **Mínimo obrigatório:** N1 + N2 cobertos. **N3 é bônus** (até +2 pts extras).
@@ -170,24 +170,21 @@ d) Pergunta de arquitetura: para um sistema multi-agente em produção, qual a e
 
 ---
 
-### Exercício 2.3 — Migrar a Function para Container Apps
+### Exercício 2.3 — Endurecer e dimensionar o ACI da QC
 
-Container Apps é o "meio termo" entre Function e ACI: serverless + container.
+O lab (Atividade 3) subiu um ACI **básico**. Aqui você evolui esse mesmo ACI no Terraform para cenários mais próximos de produção da QC.
 
-**Sua tarefa:**
+**Sua tarefa (partindo do `containers.tf` do lab):**
 
-a) Adicione um `azurerm_container_app_environment` + `azurerm_container_app` ao Terraform.
-b) Configure o Container App para puxar a imagem `produtos-api:v1` do seu ACR (do L₃).
-c) Habilite **ingress externo** com porta 8080.
-d) Configure **scale rules:**
-   - min: 0 réplicas (scale to zero)
-   - max: 10 réplicas
-   - rule: HTTP concurrent requests > 50 dispara scale-out
-e) Compare com a Function:
-   - URL pública: tem HTTPS? Onde está o certificado?
-   - Cold start: maior, menor, igual?
-   - Custo idle: zero, como?
-f) **Reflexão:** Para a QC, quando você escolheria Container Apps em vez de Function?
+a) **Restart policy** — o ACI do lab usa o padrão (`Always`, bom para um serviço sempre-on). Crie/justifique uma variante para um **job batch** da QC (ex.: recalcular recomendações à noite e terminar) usando `restart_policy = "OnFailure"`. Explique em uma frase quando usar `Always`, `OnFailure` e `Never`.
+
+b) **Right-sizing + custo** — o ACI do lab usa `0.5` vCPU / `1.0` GB. Suba uma variante com `1` vCPU / `2` GB. No [Pricing Calculator](https://azure.microsoft.com/pricing/calculator), estime o custo/hora de cada uma e o custo de deixar **1 ACI 24/7** vs a **Function equivalente** (que escala a zero). ACI cobra por segundo enquanto o container existir.
+
+c) **Segredo via secure env** — mova ao menos uma configuração para `secure_environment_variables` (não aparece em texto plano no portal/CLI) em vez de `environment_variables`. Mostre a diferença ao inspecionar com `az container show`.
+
+d) **Limite de réplica única** — o ACI roda **1 réplica fixa**, sem autoscale nativo. Explique o que isso significa para um pico de tráfego da QC (ex.: Black Friday) e qual serviço (Function/AKS/Container Apps) você escolheria nesse caso e por quê.
+
+e) **Reflexão:** Para a QC, em quais workloads você levaria **ACI** e em quais levaria **Function**? Considere custo idle, HTTPS, escala e simplicidade operacional.
 
 ---
 
@@ -289,7 +286,7 @@ A entrega é **um ZIP por grupo** (`entrega-grupo-NN-aula03.zip`) no Portal FIAP
 |------|--------------|----------------|
 | Cabeçalho do grupo + distribuição do trabalho | ✅ Sim | 1 pt (Critério 4) |
 | 🟢 N1 — Exercícios 1.1, 1.2, 1.3, 1.4 | ✅ Sim | 3 pts (Critério 1) |
-| 🟡 N2 — 2.1 (segunda tool), 2.2 (App Insights), 2.3 (Container Apps) | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
+| 🟡 N2 — 2.1 (segunda tool), 2.2 (App Insights), 2.3 (ACI: restart/sizing/secure env) | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
 | 🔴 N3 — 3.1 (tool spec), 3.2 (benchmark), 3.3 (CI/CD) | 🎁 Bônus | até +2 pts extras |
 | Reflexão coletiva ao final | ✅ Sim | 1 pt (Critério 5) |
 | **Total da entrega** | | **10 pts** (10% da nota final) |
