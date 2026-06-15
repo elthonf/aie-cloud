@@ -36,8 +36,12 @@ docker build --platform linux/amd64 -t ghcr.io/elthonf/produtos-api:v1 .
 docker push ghcr.io/elthonf/produtos-api:v1
 ```
 
-Depois, no GitHub: **Packages → produtos-api → Package settings → Change visibility → Public**
-(imagem pública dispensa credenciais no `az acr import` do aluno).
+Depois, **torne o package público** — todo package novo no GHCR nasce **privado**,
+e o `az acr import` do aluno (acesso anônimo) falharia com `403 DENIED` se ficar privado:
+
+GitHub → **Packages → produtos-api → Package settings → Danger Zone → Change visibility → Public**
+
+> Se preferir manter privado, o aluno teria de passar `--username elthonf --password <PAT read:packages>` no `az acr import` (menos prático para a turma).
 
 > Ajuste `elthonf` para o owner real do GHCR, se for outro.
 
