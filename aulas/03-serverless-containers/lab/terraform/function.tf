@@ -14,7 +14,7 @@ resource "azurerm_function_app_flex_consumption" "fn" {
   storage_access_key          = azurerm_storage_account.func_sa.primary_access_key
 
   runtime_name           = "python"
-  runtime_version        = "3.11"
+  runtime_version        = "3.12"
   instance_memory_in_mb  = 2048
   maximum_instance_count = 40
 
