@@ -12,7 +12,7 @@
 |------|--------------|----------------|
 | Cabeçalho do grupo + distribuição do trabalho | ✅ Sim | 1 pt (Critério 4) |
 | 🟢 N1 — Exercícios 1.1 (quando usar serverless), 1.2 (MI vs alternativas), 1.3 (cold start), 1.4 (Dockerfile review) | ✅ Sim | 3 pts (Critério 1) |
-| 🟡 N2 — 2.1 (segunda tool: cálculo de frete), 2.2 (App Insights), 2.3 (Container Apps) | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
+| 🟡 N2 — 2.1 (segunda tool: cálculo de frete), 2.2 (App Insights), 2.3 (ACI: restart/sizing/secure env) | ✅ Sim | 3 pts (Critério 2) + 2 pts qualidade técnica (Critério 3) |
 | 🔴 N3 — 3.1 (spec de tool de agente), 3.2 (benchmark), 3.3 (CI/CD GitHub Actions + OIDC) | 🎁 Bônus | até +2 pts extras |
 | Reflexão coletiva ao final | ✅ Sim | 1 pt (Critério 5) |
 | **Total** | | **10 pts** |
@@ -59,7 +59,7 @@ Upload no Portal FIAP, tarefa "Entrega Aula 3".
 [Rubrica única](../rubrica.md). **Foco específico desta entrega:**
 
 - **N1:** dominar a decisão **Function / ACI / Container Apps / AKS** por caso de uso e o conceito de **Managed Identity** como substituto a credenciais.
-- **N2:** a tool de **cálculo de frete** entra como segunda tool consumida pelos agentes na próxima aula. **App Insights** + Container Apps mostram domínio operacional (observabilidade + scale-to-zero containerizado).
+- **N2:** a tool de **cálculo de frete** entra como segunda tool consumida pelos agentes na próxima aula. **App Insights** + o endurecimento do **ACI** (restart policy, right-sizing/custo, secure env, réplica única) mostram domínio operacional.
 - **N3 (bônus):** o exercício **3.1 (spec de tool)** é o mais valorizado — é o contrato entre o agente e a API que vocês construíram. Bem feito, é peça do projeto integrado final.
 - **Reflexão:** discutir como a escolha "Function vs Container" muda a forma como o agente consome a tool (cold start, latência, falhas) e o que isso implica para a UX da QC.
 
