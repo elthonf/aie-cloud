@@ -18,10 +18,17 @@ Nas contas **Azure for Students**, o **ACR Tasks é bloqueado** (`az acr build` 
 
 Feito numa máquina/Codespace **com Docker** (Codespaces já é `linux/amd64`, ideal):
 
+Antes, crie um **PAT do GitHub** (Settings → Developer settings → Personal access
+tokens → **Tokens (classic)** → escopo **`write:packages`**) e exporte:
+
+```bash
+export GHCR_PAT=ghp_seu_token_aqui   # sem isto, o login abaixo dá "Cannot perform an interactive login from a non TTY device"
+```
+
 ```bash
 cd aulas/03-serverless-containers/lab/docker
 
-# Login no GHCR com um PAT do GitHub (escopo write:packages)
+# Login no GHCR (alternativa: 'docker login ghcr.io -u elthonf' e colar o PAT no prompt)
 echo "$GHCR_PAT" | docker login ghcr.io -u elthonf --password-stdin
 
 # IMPORTANTE: ACI roda linux/amd64 — force a plataforma (essencial em Mac ARM)
