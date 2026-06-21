@@ -8,7 +8,7 @@ Ao final desta aula, você será capaz de:
 - Provisionar um **Azure AI Services multi-service** (1 endpoint para Speech/Language/Vision) com **custom subdomain** habilitado.
 - Autenticar a Function nas APIs cognitivas via **Managed Identity** (sem chaves no código).
 - Decidir entre **APIs prontas**, **modelos customizados** (Custom Vision, CLU) e **LLMs** (Azure OpenAI) para cada caso de uso.
-- Construir um **pipeline cognitivo end-to-end**: Function lê áudio/imagem do Blob, transcreve/analisa, grava de volta no Cosmos.
+- Construir um **pipeline cognitivo end-to-end**: Function lê áudio/imagem do Blob, transcreve/analisa, grava de volta no MongoDB.
 
 ---
 
@@ -25,8 +25,8 @@ Esta aula adiciona **3 novas tools** à API da QC (sobre a Function da Aula 3):
 | Tool | Capacidade cognitiva |
 |------|----------------------|
 | `/transcrever` | Speech-to-Text — transcrever atendimento de voz |
-| `/analisar-reviews` | Language — sentimento + entidades das reviews do Cosmos |
-| `/analisar-imagem` | Vision — tags + OCR + caption das imagens dos produtos |
+| `/analisar-reviews` | Language — sentimento + entidades das reviews do MongoDB |
+| `/analisar-imagem` | Vision — tags + OCR das imagens dos produtos |
 
 Os agentes da QC podem agora **ouvir** o cliente, **entender** as reviews e **ver** as imagens dos produtos.
 
@@ -50,14 +50,7 @@ Esta aula gera a **4ª entrega de grupo** (10% da nota): instruções em [entreg
 
 ## Pré-requisitos
 
-- ✅ Aulas 1-3 concluídas
-- ✅ **Storage e Cosmos da Aula 2 aplicados** (com `produtos.csv` no Blob e reviews populadas no Cosmos)
+- ✅ Conta Azure ativa (Azure for Students com $100 de crédito)
+- ✅ Nenhuma dependência das aulas anteriores — **esta aula é autossuficiente**
 
-Se você destruiu a Aula 2:
-
-```bash
-cd ~/aie-cloud/aulas/02-storage-bancos/lab/terraform
-SQL_PASSWORD=$(openssl rand -base64 24)
-terraform apply -auto-approve -var="sql_admin_password=$SQL_PASSWORD"
-# Re-popular o Cosmos com reviews (ver guia da Aula 2, Atividade 3)
-```
+O Terraform da Aula 4 provisiona tudo do zero: AI Services, Key Vault, Storage, MongoDB (ACI) e Function App.
