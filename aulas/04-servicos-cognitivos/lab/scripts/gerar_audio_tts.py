@@ -1,73 +1,51 @@
 """
-Script auxiliar — gera um áudio sintético em PT-BR usando Azure TTS.
-
-Útil como fallback se você não conseguir baixar um podcast/áudio público
-para testar a rota /transcrever no L₂. Use o MESMO recurso Azure AI
-Services do lab — tanto TTS quanto STT moram nele.
-
-Variáveis de ambiente necessárias:
-    AI_ENDPOINT      — endpoint do Azure AI Services
-    KEY_VAULT_NAME   — nome do Key Vault (com o segredo ai-services-key)
-    AI_REGION        — região (default: eastus2)
-
-Saída: ~/qc-aula04/audio-teste.wav
-
-Dependências:
-    pip install --user azure-cognitiveservices-speech azure-identity azure-keyvault-secrets
+Gera áudio WAV em PT-BR via Azure Speech TTS (REST API).
+Uso: python3 gerar_audio_tts.py
+Variáveis de ambiente:
+    AI_KEY     — chave do AI Services (exportar do Key Vault: ver passo 1 da Atividade 2)
+    AI_REGION  — região (default: eastus2)
+Saída: /tmp/audio-teste.wav
 """
 import os
 import sys
+import requests
 
-import azure.cognitiveservices.speech as speechsdk
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
+AI_REGION = os.environ.get("AI_REGION", "eastus2")
+AI_KEY    = os.environ.get("AI_KEY", "")
 
-TEXTO = """
-A Quantum Commerce é uma plataforma de e-commerce que opera em doze países.
-Nossos agentes de inteligência artificial ajudam clientes a encontrar produtos,
-calcular fretes, processar pedidos e responder dúvidas em tempo real.
+if not AI_KEY:
+    print("Exporte AI_KEY com a chave primária do AI Services:")
+    print("  export AI_KEY=$(az keyvault secret show --vault-name <KV_NAME> --name ai-services-key --query value -o tsv)")
+    sys.exit(1)
+
+SSML = """
+<speak version='1.0' xml:lang='pt-BR'>
+  <voice xml:lang='pt-BR' xml:gender='Male' name='pt-BR-AntonioNeural'>
+    A Quantum Commerce é uma plataforma de e-commerce que opera em doze países.
+    Nossos agentes de inteligência artificial ajudam clientes a encontrar produtos,
+    calcular fretes, processar pedidos e responder dúvidas em tempo real.
+    A nossa missão é tornar o comércio mais humano, inteligente e acessível.
+  </voice>
+</speak>
 """
 
-VOZ = "pt-BR-AntonioNeural"  # outras opções: pt-BR-FranciscaNeural, pt-BR-ThalitaNeural
-SAIDA = os.path.expanduser("~/qc-aula04/audio-teste.wav")
+tts_url = f"https://{AI_REGION}.tts.speech.microsoft.com/cognitiveservices/v1"
+# Autenticação por chave: header Ocp-Apim-Subscription-Key (não Authorization)
+headers = {
+    "Ocp-Apim-Subscription-Key": AI_KEY,
+    "Content-Type": "application/ssml+xml",
+    "X-Microsoft-OutputFormat": "riff-16khz-16bit-mono-pcm",
+}
 
+print(f"Gerando áudio via TTS ({AI_REGION})...")
+resp = requests.post(tts_url, headers=headers, data=SSML.encode("utf-8"), timeout=30)
 
-def main():
-    kv_name = os.environ["KEY_VAULT_NAME"]
-    region  = os.environ.get("AI_REGION", "eastus2")
-
-    # 1. Ler chave do AI Services do Key Vault (usando MI do Cloud Shell)
-    cred = DefaultAzureCredential()
-    kv_client = SecretClient(f"https://{kv_name}.vault.azure.net", credential=cred)
-    ai_key = kv_client.get_secret("ai-services-key").value
-    print(f"✓ Chave do AI Services lida de {kv_name}")
-
-    # 2. Configurar TTS
-    speech_config = speechsdk.SpeechConfig(subscription=ai_key, region=region)
-    speech_config.speech_synthesis_voice_name = VOZ
-
-    # Garantir que a pasta de saída exista
-    os.makedirs(os.path.dirname(SAIDA), exist_ok=True)
-    audio_config = speechsdk.audio.AudioOutputConfig(filename=SAIDA)
-
-    synthesizer = speechsdk.SpeechSynthesizer(
-        speech_config=speech_config, audio_config=audio_config
-    )
-
-    # 3. Sintetizar
-    print(f"→ Sintetizando áudio com voz '{VOZ}'...")
-    result = synthesizer.speak_text_async(TEXTO).get()
-
-    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-        print(f"✓ Áudio salvo em {SAIDA}")
-        print(f"  Tamanho: {os.path.getsize(SAIDA)} bytes")
-    else:
-        print(f"✗ Erro na síntese: {result.reason}")
-        if result.reason == speechsdk.ResultReason.Canceled:
-            details = speechsdk.CancellationDetails(result)
-            print(f"  Detalhe: {details.reason} — {details.error_details}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+if resp.status_code == 200:
+    output_path = "/tmp/audio-teste.wav"
+    with open(output_path, "wb") as f:
+        f.write(resp.content)
+    size_kb = len(resp.content) // 1024
+    print(f"✓ Áudio salvo em {output_path} ({size_kb} KB)")
+else:
+    print(f"✗ Erro {resp.status_code}: {resp.text}")
+    sys.exit(1)
