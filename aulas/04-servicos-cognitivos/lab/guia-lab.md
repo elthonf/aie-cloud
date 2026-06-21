@@ -111,7 +111,7 @@ Saída esperada:
 ✓ 10 reviews inseridas em qc-db.reviews
 ```
 
-Abra **`http://<MONGO_IP>:8081`** no browser — login `qcadmin / QCview2024!`. Navegue até `qc-db → reviews` para ver os documentos.
+Abra **`http://<MONGO_IP>:8081`** no browser — abre direto, sem login. Navegue até `qc-db → reviews` para ver os documentos.
 
 **✅ Checkpoint L₁:** 10 reviews visíveis no Mongo Express?
 

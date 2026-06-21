@@ -67,4 +67,4 @@ for stars in range(1, 6):
 
 client.close()
 print(f"\n✅ MongoDB pronto para uso!")
-print(f"   Mongo Express: http://{MONGO_IP}:8081 (login: qcadmin / QCview2024!)")
+print(f"   Mongo Express: http://{MONGO_IP}:8081 (abre direto, sem login)")
