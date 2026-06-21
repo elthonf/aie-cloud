@@ -44,8 +44,9 @@ resource "azurerm_container_group" "mongodb" {
 
     environment_variables = {
       ME_CONFIG_MONGODB_URL          = "mongodb://admin:${local.mongo_admin_pass}@localhost:27017"
-      ME_CONFIG_BASICAUTH_USERNAME   = "qcadmin"
-      ME_CONFIG_BASICAUTH_PASSWORD   = local.mongo_express_pass
+      # Basic Auth desativado: Chrome 94+ bloqueia dialogs de Basic Auth em HTTP puro.
+      # O MongoDB em si continua protegido por senha — esta interface é só para visualização no lab.
+      ME_CONFIG_BASICAUTH            = "false"
       ME_CONFIG_MONGODB_ENABLE_ADMIN = "true"
       ME_CONFIG_SITE_SESSIONSECRET   = "QCsession2024!"
     }
