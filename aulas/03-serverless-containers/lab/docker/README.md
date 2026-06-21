@@ -53,7 +53,8 @@ ACR_NAME=$(cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform && terraf
 az acr import \
   --name "$ACR_NAME" \
   --source ghcr.io/elthonf/produtos-api:v1 \
-  --image produtos-api:v1
+  --image produtos-api:v1 \
+  --force
 
 # Confirmar
 az acr repository list -n "$ACR_NAME" -o table
@@ -63,7 +64,7 @@ az acr repository list -n "$ACR_NAME" -o table
 
 ```bash
 cd ~/aie-cloud/aulas/03-serverless-containers/lab/terraform
-terraform apply -auto-approve -var="aci_enabled=true"
+terraform apply -auto-approve -var="aci_enabled=true" --force
 ```
 
 ## Testar o ACI
