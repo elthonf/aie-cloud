@@ -18,10 +18,41 @@ import os
 import pickle
 
 import mlflow
-import mlflow.sklearn
+import mlflow.pyfunc
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.neighbors import NearestNeighbors
+
+
+class RecomendadorPyfunc(mlflow.pyfunc.PythonModel):
+    """Wrapper pyfunc: empacota nn + embeddings + df para servir via endpoint."""
+
+    def load_context(self, context):
+        import pickle
+        with open(context.artifacts["modelo_pkl"], "rb") as f:
+            obj = pickle.load(f)
+        self.nn = obj["nn"]
+        self.embeddings = obj["embeddings"]
+        self.df = obj["df"]
+
+    def predict(self, context, model_input):
+        produto_id = int(model_input["produto_id"].iloc[0])
+        n = int(model_input["n_recomendacoes"].iloc[0]) if "n_recomendacoes" in model_input.columns else 5
+        query = self.embeddings[produto_id].reshape(1, -1)
+        dists, idxs = self.nn.kneighbors(query, n_neighbors=min(n + 1, len(self.df)))
+        vizinhos = [i for i in idxs[0] if i != produto_id][:n]
+        scores = [float(1 - d) for i, d in zip(idxs[0], dists[0]) if i != produto_id][:n]
+        rows = [
+            {
+                "produto_id": int(idx),
+                "nome": str(self.df.iloc[idx]["nome"]),
+                "categoria": str(self.df.iloc[idx]["categoria"]),
+                "preco": float(self.df.iloc[idx]["preco"]),
+                "score_similaridade": round(s, 4),
+            }
+            for idx, s in zip(vizinhos, scores)
+        ]
+        return pd.DataFrame(rows)
 
 
 def main():
@@ -78,10 +109,12 @@ def main():
     with open("./outputs/nn_model.pkl", "wb") as f:
         pickle.dump({"nn": nn, "embeddings": embeddings, "df": df}, f)
 
-    # Registrar no Model Registry
-    mlflow.sklearn.log_model(
-        nn,
-        "model",
+    # Registrar no Model Registry como pyfunc (nn + embeddings + df empacotados)
+    # NearestNeighbors não tem predict() — pyfunc empacota o pkl completo para o endpoint.
+    mlflow.pyfunc.log_model(
+        artifact_path="pyfunc_model",
+        python_model=RecomendadorPyfunc(),
+        artifacts={"modelo_pkl": "./outputs/nn_model.pkl"},
         registered_model_name="recomendador-qc",
     )
     print("✓ Modelo registrado no Registry")

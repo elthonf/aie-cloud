@@ -1,6 +1,6 @@
 {
-  "input_data": {
-    "produto_id": 5,
-    "n_recomendacoes": 5
+  "dataframe_split": {
+    "columns": ["produto_id", "n_recomendacoes"],
+    "data": [[5, 5]]
   }
 }
