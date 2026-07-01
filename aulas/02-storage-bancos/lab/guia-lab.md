@@ -14,7 +14,7 @@ Este lab é intercalado com a teoria. Cada atividade corresponde a um momento do
 Preparação — terraform apply de TODA a camada de dados            ~10 min
 Atividade 1 — Storage Account + upload de CSV ao Blob              ~15 min  (L₁)
 Atividade 2 — Azure SQL + Key Vault + Python (T_PRODUTOS)          ~30 min  (L₂)
-Atividade 3 — Cosmos DB + Azure AI Search (reviews + semantic)     ~50 min  (L₃)
+Atividade 3 — Cosmos DB / MongoDB + Azure AI Search                ~55 min  (L₃)
 Wrap-up     — terraform destroy + verificação custo zero           ~10 min
 ```
 
@@ -51,7 +51,7 @@ git pull origin main
 # Ir para a pasta do Terraform da Aula 2
 cd aulas/02-storage-bancos/lab/terraform
 ls
-# Você verá: main.tf  variables.tf  outputs.tf  storage.tf  sql.tf  keyvault.tf  cosmos.tf  search.tf  README.md
+# Você verá: main.tf  variables.tf  outputs.tf  storage.tf  sql.tf  keyvault.tf  cosmos.tf  mongodb.tf  search.tf  README.md
 ```
 
 Leia rapidamente cada `.tf` (5 min) — entenda o que vai ser provisionado. O [README da pasta](terraform/README.md) tem uma visão geral.
@@ -83,11 +83,13 @@ export STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
 export KEY_VAULT_NAME=$(terraform output -raw key_vault_name)
 export COSMOS_ENDPOINT=$(terraform output -raw cosmos_endpoint)
 export SEARCH_ENDPOINT=$(terraform output -raw search_endpoint)
+export MONGO_IP=$(terraform output -raw mongodb_public_ip)
 
 echo "Storage: $STORAGE_ACCOUNT_NAME"
 echo "Key Vault: $KEY_VAULT_NAME"
 echo "Cosmos: $COSMOS_ENDPOINT"
 echo "Search: $SEARCH_ENDPOINT"
+echo "MongoDB: $MONGO_IP:27017  |  Mongo Express: $(terraform output -raw mongo_express_url)"
 ```
 
 ---
@@ -198,9 +200,11 @@ Anote no `respostas-aula02.md` do seu fork:
 
 ---
 
-## Atividade 3 — Cosmos DB Serverless + Azure AI Search
+## Atividade 3 — Cosmos DB / MongoDB + Azure AI Search
 
-**Objetivo:** Inserir reviews dos clientes da QC no Cosmos DB (NoSQL) e indexar o catálogo no Azure AI Search com semantic ranking — base para o RAG dos agentes.
+**Objetivo:** Inserir reviews dos clientes da QC num banco NoSQL (Cosmos DB **ou** MongoDB) e indexar o catálogo no Azure AI Search com semantic ranking — base para o RAG dos agentes.
+
+> **Cosmos DB indisponível na sua região?** O ambiente provisiona automaticamente os dois bancos. Se o `terraform apply` criou o Cosmos com sucesso, siga a **Parte A**. Se recebeu `RequestDisallowedByAzure` ou `No region available` para o Cosmos, pule para a **Parte A.2 — MongoDB**.
 
 ### Parte A — Cosmos DB (20 min)
 
@@ -240,6 +244,50 @@ Esperado: 30 reviews inseridas + listagem de reviews score ≥ 4 do produto 5.
 3. Visualizar os documentos JSON inseridos
 
 **✅ Checkpoint L₃-A:** Você vê 30 reviews no Data Explorer do Cosmos?
+
+---
+
+### Parte A.2 — MongoDB via ACI (alternativa regional)
+
+> Se o Cosmos DB foi criado com sucesso, você pode pular para a **Parte B**. Se recebeu **"No region available"** ou **"RequestDisallowedByAzure"** no Cosmos, use este caminho — o MongoDB já foi provisionado junto com os demais recursos (mesmo `terraform apply`).
+
+O `terraform apply` criou um **Azure Container Instance** com **MongoDB 7.0** + **Mongo Express** (interface web). É a mesma abordagem da Aula 4.
+
+#### Passo 1 — Conferir o que foi provisionado
+
+Abra [mongodb.tf](terraform/mongodb.tf):
+
+- **`azurerm_container_group.mongodb`** — ACI com dois containers (MongoDB + Mongo Express) compartilhando rede do grupo.
+- **Portas expostas:** 27017 (MongoDB) e 8081 (Mongo Express).
+- **Autenticação vs Cosmos:** conexão TCP direta com usuário/senha — sem token AAD, sem Key Vault. Padrão de laboratório; em produção a senha viria do Key Vault (mesmo padrão do SQL aqui).
+
+#### Passo 2 — Aguardar o container estar pronto (~2 min)
+
+```bash
+echo "MongoDB  : $MONGO_IP:27017"
+echo "Mongo Web: $(terraform output -raw mongo_express_url)"
+# Abrir a URL do Mongo Express no browser — se carregar, o container está pronto
+```
+
+O script já tenta por até 100 segundos automaticamente — não é necessário aguardar manualmente.
+
+#### Passo 3 — Rodar o script de reviews
+
+```bash
+pip install --user pymongo
+cd ~/aie-cloud/aulas/02-storage-bancos/lab/scripts
+python3 popular_reviews_mongo.py
+```
+
+Esperado: 30 reviews inseridas + listagem de reviews score ≥ 4 do produto 5. **Os dados são idênticos ao Cosmos** (mesmo seed, mesmos campos `produto_id` / `score` / `texto` / `cliente`) — facilita comparar os dois modelos NoSQL.
+
+#### Passo 4 — Explorar no Mongo Express
+
+1. Abrir no browser o endereço do `terraform output mongo_express_url` (ex.: `http://20.x.x.x:8081`)
+2. Clicar em **qc-db** → **reviews** → **View**
+3. Observar os documentos JSON — mesma estrutura do Cosmos (sem o overhead de `_ts`, `_etag`, `_rid`)
+
+**✅ Checkpoint L₃-A.2:** Você vê 30 reviews no Mongo Express?
 
 ---
 
@@ -330,7 +378,8 @@ infrastructure/
   ├── storage.tf    (Blob: catálogo, imagens, logs)
   ├── sql.tf        (T_PRODUTOS — transacional)
   ├── keyvault.tf   (segredos)
-  ├── cosmos.tf     (reviews — NoSQL)
+  ├── cosmos.tf     (reviews — NoSQL Cosmos)
+  ├── mongodb.tf    (reviews — NoSQL MongoDB via ACI, alternativa regional)
   └── search.tf     (índice de produtos — base de RAG)
 ```
 
@@ -360,6 +409,9 @@ Esses recursos serão consumidos por:
 | AI Search: `Semantic search is not enabled for this service` | Semantic ranker não habilitado | Já resolvido via `azapi_update_resource.search_semantic` em `search.tf`. Em serviço antigo: `terraform apply` de novo (ou `az search service update --name <svc> -g <rg> --semantic-search free`) |
 | `terraform destroy` falha em Key Vault | Purge protection ou soft-delete | Confirmar `purge_protection_enabled = false` no `keyvault.tf` (já está) |
 | `AuthorizationPermissionMismatch` no upload Blob | Sem role data plane no Storage | Conceder `Storage Blob Data Contributor` (ver Passo 2 da L₁) |
+| MongoDB: `ServerSelectionTimeoutError` após 100s | ACI ainda inicializando | Aguardar 1 min e rodar `python3 popular_reviews_mongo.py` de novo |
+| MongoDB: `Authentication failed` | `MONGO_IP` não exportado ou IP errado | `echo $MONGO_IP` — se vazio: `export MONGO_IP=$(terraform output -raw mongodb_public_ip)` |
+| Mongo Express: página não carrega | ACI ainda subindo ou porta 8081 | Aguardar 2 min; confirmar URL: `terraform output mongo_express_url` |
 
 ---
 

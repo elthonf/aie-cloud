@@ -48,6 +48,7 @@ locals {
     projeto      = "quantum-commerce"
     provisionado = "terraform"
   }
+  mongo_admin_pass = "QCadmin2024!"
 }
 
 # Resource Group da Aula 2

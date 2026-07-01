@@ -53,3 +53,25 @@ output "search_endpoint" {
   description = "Endpoint do Azure AI Search"
   value       = "https://${azurerm_search_service.qc.name}.search.windows.net"
 }
+
+# MongoDB ACI
+output "mongodb_public_ip" {
+  description = "IP público do ACI com MongoDB"
+  value       = azurerm_container_group.mongodb.ip_address
+}
+
+output "mongodb_fqdn" {
+  description = "FQDN do ACI (alternativa ao IP)"
+  value       = azurerm_container_group.mongodb.fqdn
+}
+
+output "mongo_express_url" {
+  description = "URL do Mongo Express (interface web do MongoDB)"
+  value       = "http://${azurerm_container_group.mongodb.ip_address}:8081"
+}
+
+output "mongodb_connection_string" {
+  description = "Connection string do MongoDB"
+  value       = "mongodb://admin:${local.mongo_admin_pass}@${azurerm_container_group.mongodb.ip_address}:27017/?authSource=admin"
+  sensitive   = true
+}
